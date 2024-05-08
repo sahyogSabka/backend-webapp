@@ -1,0 +1,23 @@
+{
+  "name": "backend-webapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Himanshusharma007-stack/backend-webapp.git"
+  },
+  "author": "Himanshu-Sharma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Himanshusharma007-stack/backend-webapp/issues"
+  },
+  "homepage": "https://github.com/Himanshusharma007-stack/backend-webapp#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
