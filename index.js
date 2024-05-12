@@ -7,7 +7,7 @@ const port = 3000
 app.use(express.json());
 app.use(cors());
 
-// Load mongo config
+// Load mongo config 
 require("./config");
 
 // Load routes
