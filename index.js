@@ -13,10 +13,12 @@ require("./config");
 // Load routes
 const indexRoutes = require("./src/routes/restaurant");
 const orderRoutes = require('./src/routes/orders')
+const userRoutes = require('./src/routes/users')
 
 // Routes
 app.use("/restaurant", indexRoutes);
 app.use("/order", orderRoutes);
+app.use("/user", userRoutes);
 
 // Home Route this will be in end of all routes
 app.use("/", (req, res) => res.send({success: true, msg: 'Hello in Sahyog Sabka.'}));
