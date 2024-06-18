@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 // Define the restaurant schema
 const restaurantSchema = new mongoose.Schema({
@@ -11,40 +12,49 @@ const restaurantSchema = new mongoose.Schema({
     required: true
   },
   address: {
-    street: {
-      type: String,
-      required: true
-    },
-    city: {
-      type: String,
-      required: true
-    },
-    state: {
-      type: String,
-      required: true
-    },
-    zipcode: {
-      type: String,
-      required: true
-    }
+    type: String,
+    required: true
   },
   rating: {
     type: Number,
     required: true
   },
-  reviews: [
-    {
-      username: {
-        type: String,
-        required: true
-      },
-      comment: {
-        type: String,
-        required: true
-      }
+  mobile: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true,
+  }
+}, {
+  toJSON: {
+    transform: function (doc, ret) {
+      delete ret.__v;
+      delete ret.password; // also remove the password field from the response
+      return ret;
     }
-  ]
+  }
 });
+
+// Encrypt password before saving
+restaurantSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+restaurantSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 // Define the Restaurant model
 const Restaurant = mongoose.model('Restaurant', restaurantSchema, 'restaurants');

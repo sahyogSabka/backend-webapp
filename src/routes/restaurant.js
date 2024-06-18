@@ -11,4 +11,8 @@ router.get("/:id", (req, res) => {
   return RestaurnatController.getFooditemsByRestaurantId(req, res)
 });
 
+router.post("/create", (req, res) => {
+  return RestaurnatController.createRestaurant(req, res)
+});
+
 module.exports = router;
