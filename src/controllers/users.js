@@ -1,5 +1,7 @@
 const UserSchema = require('../models/user')
+const restaurantSchema = require('../models/restaurant')
 const createObjectId = require('../utils/createObjectId')
+const RestaurantController = require('../controllers/restaurant')
 
 let defaultPassword = 'sahyog@123'
 
@@ -29,11 +31,28 @@ async function createUser(req, res) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    let type = {
-      id: createObjectId(typeid)
+    // create restaurant
+    let restaurantObj = {
+      name: restaurantName,
+      cuisine: 'Indian',
+      address: restaurantAddress,
+      rating: 4,
+      mobile,
+      email,
+      password
     }
 
-    user = new UserSchema({ name: restaurantName, mobile, email, type: {id: typeid, name: 'admin'}, password });
+    RestaurantController.createRestaurant(restaurantObj)
+    
+
+
+    // create user
+    let type = {
+      id: createObjectId(typeid),
+      name: 'admin'
+    }
+
+    user = new UserSchema({ name: restaurantName, mobile, email, type, password });
     await user.save();
     
   } catch (error) {

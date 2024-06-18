@@ -21,4 +21,27 @@ async function getFooditemsByRestaurantId(req, res) {
   }
 }
 
-module.exports = { getAllRestaurants, getFooditemsByRestaurantId };
+async function createRestaurant(req, res) {
+  let {name, cuisine, address, rating, mobile, email, password} = req.body
+  try {
+    // Create restaurant instance
+    let restaurant = new Restaurant({
+      name,
+      cuisine,
+      address,
+      rating,
+      mobile,
+      email,
+      password
+    })
+
+    // Save the restaurant to the database
+    let savedRestaurant = await restaurant.save();
+    
+    res.status(201).json({ success: true, data: savedRestaurant });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+module.exports = { getAllRestaurants, getFooditemsByRestaurantId, createRestaurant };
