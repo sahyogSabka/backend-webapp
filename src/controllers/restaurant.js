@@ -4,6 +4,7 @@ const { createObjectId } = require("../utils/createObjectId");
 const bcrypt = require("bcryptjs");
 const { createSecretKey } = require("../utils/createSecretKey");
 const jwt = require("jsonwebtoken");
+const { mongoValidationError } = require('../utils/mongoValidationError')
 
 async function getAllRestaurants(req, res) {
   try {
@@ -25,12 +26,11 @@ async function getFooditemsByRestaurantId(req, res) {
 }
 
 async function createRestaurant(req, res) {
-  let { name, cuisine, address, rating, mobile, email, password } = req.body;
+  let { name, address, rating, mobile, email, password } = req.body;
   try {
     // Create restaurant instance
     let restaurant = new Restaurant({
       name,
-      cuisine,
       address,
       rating,
       mobile,
@@ -43,7 +43,12 @@ async function createRestaurant(req, res) {
 
     res.status(201).json({ success: true, data: savedRestaurant });
   } catch (error) {
-    throw new Error(error);
+    let Errormsg = mongoValidationError(error, 'Mobile already exist.')
+    res.status(500).json({
+      success: false,
+      status: 'error',
+      message: Errormsg.message
+    });
   }
 }
 
