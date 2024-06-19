@@ -4,11 +4,11 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
 // Function to safely create ObjectId from string
-function createObjectId(id) {
+function createObjectId(id, errMsg='Invalid ObjectId format') {
     if (ObjectId.isValid(id)) {
         return new ObjectId(id);
     } else {
-        throw new Error('Invalid ObjectId format');
+        throw new Error(errMsg);
     }
 }
 
