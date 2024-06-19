@@ -15,4 +15,8 @@ router.post("/create", (req, res) => {
   return RestaurnatController.createRestaurant(req, res)
 });
 
+router.post("/login", (req, res) => {
+  return RestaurnatController.loginRestaurant(req, res)
+});
+
 module.exports = router;

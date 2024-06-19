@@ -1,6 +1,6 @@
 const UserSchema = require('../models/user')
 const restaurantSchema = require('../models/restaurant')
-const createObjectId = require('../utils/createObjectId')
+const {createObjectId} = require('../utils/createObjectId')
 const RestaurantController = require('../controllers/restaurant')
 
 let defaultPassword = 'sahyog@123'
@@ -13,15 +13,6 @@ async function getAllUsers(req, res) {
     throw new Error(error);
   }
 }
-
-// async function getUserByidAndPassword(req, res) {
-//   try {
-//     let data = await UserSchema.find({})
-//     res.send({success: true, data})
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// }
 
 async function createUser(req, res) {
   const { restaurantName, restaurantAddress, typeid, mobile, email, password } = req.body
