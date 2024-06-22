@@ -5,11 +5,21 @@ const bcrypt = require("bcryptjs");
 const { createSecretKey } = require("../utils/createSecretKey");
 const jwt = require("jsonwebtoken");
 const { mongoValidationError } = require('../utils/mongoValidationError')
+const { generateSignedUrlFromS3Url } = require('../utils/signedUrl')
 
 async function getAllRestaurants(req, res) {
   try {
     let data = await Restaurant.find({});
-    res.send({ success: true, data });
+    let updatedData = [];
+    for (let i = 0; i < data.length; i++) {
+      let element = data[i].toObject();
+      if (element.image) {
+        let signedUrl = await generateSignedUrlFromS3Url(element.image, 'sahyog-sabka');
+        element.image = signedUrl;
+      }
+      updatedData.push(element);
+    }
+    res.send({ success: true, data: updatedData });
   } catch (error) {
     throw new Error(error);
   }
