@@ -1,7 +1,8 @@
-const crypto = require('crypto');
+// const crypto = require('crypto');
 
 function createSecretKey() {
-    return crypto.randomBytes(64).toString('hex');
+    // let createUniqueStr = crypto.randomBytes(64).toString('hex')
+    return process.env.JWT_SECRET_KEY;
 }
 
 module.exports = { createSecretKey }

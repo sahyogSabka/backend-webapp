@@ -68,7 +68,6 @@ async function loginRestaurant(req, res) {
     let mongoObjectId = createObjectId(restaurantId, 'Invalid userid.');
 
     const restaurant = await Restaurant.findById(mongoObjectId);
-    // console.log('restaurant ----- ',restaurant);
 
     if (!restaurant) {
       return res
