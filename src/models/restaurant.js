@@ -5,11 +5,10 @@ const bcrypt = require('bcryptjs');
 const restaurantSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: [true, 'Name is required']
   },
   cuisine: {
-    type: String,
-    required: true
+    type: String
   },
   address: {
     type: String,
@@ -17,11 +16,11 @@ const restaurantSchema = new mongoose.Schema({
   },
   rating: {
     type: Number,
-    required: true
+    default: 3
   },
   mobile: {
     type: String,
-    required: true,
+    required: [true, 'Mobile is required'],
     unique: true
   },
   email: {

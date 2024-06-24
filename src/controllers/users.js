@@ -3,7 +3,7 @@ const restaurantSchema = require('../models/restaurant')
 const {createObjectId} = require('../utils/createObjectId')
 const RestaurantController = require('../controllers/restaurant')
 
-let defaultPassword = 'sahyog@123'
+let defaultPassword = 'Sahyog@123'
 
 async function getAllUsers(req, res) {
   try {
