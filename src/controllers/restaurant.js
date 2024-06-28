@@ -28,7 +28,7 @@ async function getAllRestaurants(req, res) {
 async function getFooditemsByRestaurantId(req, res) {
   try {
     const fooditemObjectid = createObjectId(req.params.id);
-    let data = await FoodItem.find({ "restaurant.id": fooditemObjectid });
+    let data = await FoodItem.find({ "restaurant._id": fooditemObjectid });
     res.send({ success: true, data });
   } catch (error) {
     throw new Error(error);
