@@ -14,11 +14,15 @@ require("./config");
 const restaurantRoutes = require("./src/routes/restaurant");
 const orderRoutes = require('./src/routes/orders')
 const userRoutes = require('./src/routes/users')
+const authenticateRoute = require('./src/routes/authenticate')
+const foodItemRoute = require('./src/routes/foodItem')
 
 // Routes
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);
 app.use("/user", userRoutes);
+app.use("/authenticate", authenticateRoute);
+app.use("/foodItem", foodItemRoute);
 
 // Home Route this will be in end of all routes
 app.use("/", (req, res) => res.send({success: true, msg: 'Hello in Sahyog Sabka.'}));
