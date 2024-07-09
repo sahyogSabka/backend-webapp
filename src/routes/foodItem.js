@@ -7,6 +7,10 @@ router.post("/create", (req, res) => {
   return FoodItemController.addFoodItem(req, res)
 });
 
+router.post("/update", (req, res) => {
+  return FoodItemController.editFoodItem(req, res)
+});
+
 router.get("/categories", (req, res) => {
   return FoodItemController.categories(req, res)
 });

@@ -30,6 +30,15 @@ const restaurantSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  isActive: {
+    type: Boolean,
+    default: false
+  },
+  image: {
+    type: String,
+    required: true,
+    default: 'https://sahyog-sabka.s3.eu-north-1.amazonaws.com/Restaurant/default-image.png'
   }
 }, {
   toJSON: {
