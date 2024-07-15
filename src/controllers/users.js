@@ -15,38 +15,40 @@ async function getAllUsers(req, res) {
   }
 }
 
-async function createOrUpdateUser(req, res) {
-  // const { restaurantName, restaurantAddress, typeid, mobile, email, password } = req.body
-  const { name, email, mobile, picture, address } = req.body
+async function addUser(obj) {
   try {
-    // let user = await UserSchema.findOne({ mobile });
-    // if (user) {
-    //   return res.status(400).json({ message: 'User already exists' });
-    // }
-
-    // // create user
-    // let userObj = {
-    //   name, email, mobile, picture, address
-    // }
-
-    // userController.createUser(userObj)
-    
-
-
-    // // create user
-    // let type = {
-    //   id: createObjectId(typeid),
-    //   name: 'admin'
-    // }
-
-    // user = new UserSchema({ name: restaurantName, mobile, email, type, password });
-    // await user.save();
-    
+    return await UserSchema.create({ ...obj })
   } catch (error) {
     throw new Error(error);
   }
 }
 
+async function updateUser(id , obj) {
+  try {
+    return await UserSchema.updateOne( { _id: createObjectId(id) } , { ...obj });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+async function createUser(req, res) {
+  const { name, picture, email } = req.body
+  try {
+    let user = await UserSchema.findOne({ email });
+    if (!user) {
+      user = await addUser({ name, picture, email, type: {id: '666d62b8f447d3be1433fb7d', name: 'customer'} })
+      return res.status(200).json({ success: true, msg: 'User is successfully created.', user })
+    }
+    return res.status(200).json({ success: true, msg: 'User is already created.', user })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      status: 'error',
+      message: error.message
+    });
+  }
+}
 
 
-module.exports = { getAllUsers, createOrUpdateUser };
+
+module.exports = { getAllUsers, createUser };
