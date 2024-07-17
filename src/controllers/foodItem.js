@@ -11,6 +11,7 @@ const Joi = require('joi');
 
 // Define a validation schema
 const foodItemSchema = Joi.object({
+  _id: Joi.string(),
   category: Joi.object({
     _id: Joi.string().required(),
     name: Joi.string().required(),
@@ -50,18 +51,64 @@ async function addFoodItem(req, res) {
     // Create the FoodItem object
     const foodItem = new FoodItem(value);
 
-    console.log('foodItem ---------------------------------------------------------------------- ',foodItem);
-
     // Save the FoodItem object to the database
     let data = await foodItem.save();
-    console.log('FoodItem ---------------------------- ', data);
     res.send({ success: true, data: data });
   } catch (error) {
     console.error(error);
     res.status(500).send({success: false, msg: error.message, error});
   }
 }
+async function editFoodItem(req, res) {
+  try {
+    console.log('req.body ------------------------------- ', req.body);
 
+    // Validate the request body against the schema
+    const { error, value } = foodItemSchema.validate(req.body);
+    if (error) {
+      return res.status(400).send(error.details[0].message);
+    }
+    let id = value._id || null
+    if (id) {
+      id = createObjectId(id)
+    } else {
+      return res.status(400).send('Id not found');
+    }
+
+    // Convert string IDs to mongoose ObjectId
+    value.category._id = createObjectId(value.category._id);
+    value.restaurant._id = createObjectId(value.restaurant._id);
+
+    // Find the existing FoodItem by ID and update it
+    const updatedFoodItem = await FoodItem.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          category: value.category,
+          name: value.name,
+          imageUrl: value.imageUrl,
+          description: value.description,
+          price: value.price,
+          size: value.size,
+          restaurant: value.restaurant,
+          isVeg: value.isVeg,
+          inStock: value.inStock
+        }
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedFoodItem) {
+      return res.status(404).send('FoodItem not found');
+    }
+
+    console.log('Updated FoodItem ---------------------------- ', updatedFoodItem);
+    res.send({ success: true, data: updatedFoodItem });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ success: false, msg: error.message, error });
+  }
+}
 async function categories(req, res) {
   try {
     console.log('req.body ------------------------------- ',req.body);
@@ -75,5 +122,6 @@ async function categories(req, res) {
 
 module.exports = {
   addFoodItem,
-  categories
+  categories,
+  editFoodItem
 };
