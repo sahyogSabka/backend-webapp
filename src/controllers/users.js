@@ -10,6 +10,18 @@ async function getAllUsers(req, res) {
   }
 }
 
+async function getUserById(req, res) {
+  try {
+    // let data = await UserSchema.find({});
+    let userId = req.params?.id
+    if (!userId) res.send({ success: false, msg: 'Userid not found.'})
+    let data = await UserSchema.findOne({ _id: createObjectId(userId) });
+    res.send({ success: true, data });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 async function addUser(obj) {
   try {
     return await UserSchema.create({ ...obj });
@@ -67,4 +79,4 @@ async function createUser(req, res) {
   }
 }
 
-module.exports = { getAllUsers, createUser, updateUser };
+module.exports = { getAllUsers, createUser, updateUser, getUserById };
