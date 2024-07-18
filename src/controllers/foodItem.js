@@ -17,7 +17,7 @@ const foodItemSchema = Joi.object({
     name: Joi.string().required(),
   }).required(),
   name: Joi.string().required(),
-  imageUrl: Joi.string().uri(),
+  image: Joi.string(),
   description: Joi.string().required(),
   price: Joi.number().required(),
   size: Joi.string().required(),
@@ -29,6 +29,7 @@ const foodItemSchema = Joi.object({
     mobile: Joi.string().required(),
     email: Joi.string().email().required(),
     image: Joi.string().uri(),
+    isActive: Joi.boolean()
   }).required(),
   isVeg: Joi.boolean().required(),
   inStock: Joi.boolean().required(),
