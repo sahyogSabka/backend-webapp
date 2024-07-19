@@ -1,11 +1,10 @@
 const express = require("express");
 const FoodItemController = require('../controllers/foodItem')
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
+const upload = require('../middlewares/multer.middleware');
 
 const router = express.Router();
 
-router.post("/create", (req, res) => {
+router.post("/create", upload.single('image'), (req, res) => {
   return FoodItemController.addFoodItem(req, res)
 });
 

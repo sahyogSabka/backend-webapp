@@ -2,6 +2,7 @@ const FoodItem = require("../models/fooditem");
 const { createObjectId } = require("../utils/createObjectId");
 const Category = require('../models/category')
 const Joi = require('joi');
+const {uploadFileToS3} = require('../utils/s3Upload')
 
 // Define a validation schema
 const foodItemSchema = Joi.object({
@@ -32,11 +33,22 @@ const foodItemSchema = Joi.object({
 async function addFoodItem(req, res) {
   try {
     console.log('req.body ------------------------------- ', req.body);
+    let { category, restaurant, ...fields } = req.body;
+
+    // Parse JSON if category and restaurant are strings
+    if (typeof category === 'string') category = JSON.parse(category);
+    if (typeof restaurant === 'string') restaurant = JSON.parse(restaurant);
     
     // Validate the request body against the schema
-    const { error, value } = foodItemSchema.validate(req.body);
+    const { error, value } = foodItemSchema.validate({ category, restaurant, ...fields });
     if (error) {
       return res.status(400).send(error.details[0].message);
+    }
+
+    // Process the uploaded file if present
+    if (req.file) {
+      const s3Response = await uploadFileToS3(req.file);
+      value.imageUrl = s3Response.Location;
     }
     
     // Convert the category.id and restaurant.id to ObjectId
@@ -54,67 +66,47 @@ async function addFoodItem(req, res) {
     res.status(500).send({success: false, msg: error.message, error});
   }
 }
+
 async function editFoodItem(req, res) {
   try {
-    console.log('req.body ------------------------------- ', req.body);
-    console.log('req.file ------------------------------- ', req.file);
+    let { category, restaurant, ...fields } = req.body;
+
+    // Parse JSON if category and restaurant are strings
+    if (typeof category === 'string') category = JSON.parse(category);
+    if (typeof restaurant === 'string') restaurant = JSON.parse(restaurant);
 
     // Validate the request body against the schema
-    const { error, value } = foodItemSchema.validate(req.body);
-    if (error) {
-      return res.status(400).send(error.details[0].message);
-    }
+    const { error, value } = foodItemSchema.validate({ category, restaurant, ...fields });
+    if (error) return res.status(400).send(error.details[0].message);
 
     // Process the uploaded file if present
-    let imageUrl = '';
     if (req.file) {
-      imageUrl = req.file.path; // Adjust path as per your multer configuration
+      const s3Response = await uploadFileToS3(req.file);
+      value.imageUrl = s3Response.Location;
     }
 
-    console.log('JSON.stringify(value) --------------- ',JSON.stringify(value));
-    console.log('value --------------- ',value);
-
-    let id = value._id || null;
-    if (id) {
-      id = createObjectId(id);
-    } else {
-      return res.status(400).send('Id not found');
-    }
-
-    // Convert string IDs to mongoose ObjectId
+    // Validate and convert ID fields
+    if (!value._id) return res.status(400).send('Id not found');
+    value._id = createObjectId(value._id);
     value.category._id = createObjectId(value.category._id);
     value.restaurant._id = createObjectId(value.restaurant._id);
 
     // Update FoodItem by ID
     const updatedFoodItem = await FoodItem.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          category: value.category,
-          name: value.name,
-          imageUrl: value.imageUrl,
-          description: value.description,
-          price: value.price,
-          size: value.size,
-          restaurant: value.restaurant,
-          isVeg: value.isVeg,
-          inStock: value.inStock
-        }
-      },
+      value._id,
+      { $set: { ...value } },
       { new: true } // Return the updated document
     );
 
-    if (!updatedFoodItem) {
-      return res.status(404).send('FoodItem not found');
-    }
+    if (!updatedFoodItem) return res.status(404).send('FoodItem not found');
 
-    console.log('Updated FoodItem ---------------------------- ', updatedFoodItem);
     res.send({ success: true, data: updatedFoodItem });
   } catch (error) {
     console.error('Error in editFoodItem:', error);
     res.status(500).send({ success: false, msg: error.message, error });
   }
 }
+
 async function categories(req, res) {
   try {
     console.log('req.body ------------------------------- ',req.body);
