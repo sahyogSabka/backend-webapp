@@ -67,6 +67,7 @@ async function createOrder(req, res) {
       orders: {
         orderId: createObjectId(createdOrder._id),
         amount,
+        createdAt: new Date(),
         data: orderData,
       },
     });
