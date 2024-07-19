@@ -33,11 +33,22 @@ const foodItemSchema = Joi.object({
 async function addFoodItem(req, res) {
   try {
     console.log('req.body ------------------------------- ', req.body);
+    let { category, restaurant, ...fields } = req.body;
+
+    // Parse JSON if category and restaurant are strings
+    if (typeof category === 'string') category = JSON.parse(category);
+    if (typeof restaurant === 'string') restaurant = JSON.parse(restaurant);
     
     // Validate the request body against the schema
-    const { error, value } = foodItemSchema.validate(req.body);
+    const { error, value } = foodItemSchema.validate({ category, restaurant, ...fields });
     if (error) {
       return res.status(400).send(error.details[0].message);
+    }
+
+    // Process the uploaded file if present
+    if (req.file) {
+      const s3Response = await uploadFileToS3(req.file);
+      value.imageUrl = s3Response.Location;
     }
     
     // Convert the category.id and restaurant.id to ObjectId
