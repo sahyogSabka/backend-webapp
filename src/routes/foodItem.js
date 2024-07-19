@@ -1,7 +1,6 @@
 const express = require("express");
 const FoodItemController = require('../controllers/foodItem')
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
+const upload = require('../middlewares/multer.middleware');
 
 const router = express.Router();
 
