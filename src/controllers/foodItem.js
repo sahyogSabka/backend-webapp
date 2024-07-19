@@ -1,11 +1,5 @@
-const Restaurant = require("../models/restaurant");
 const FoodItem = require("../models/fooditem");
 const { createObjectId } = require("../utils/createObjectId");
-const bcrypt = require("bcryptjs");
-const { createSecretKey } = require("../utils/createSecretKey");
-const jwt = require("jsonwebtoken");
-const { mongoValidationError } = require('../utils/mongoValidationError')
-const { generateSignedUrlFromS3Url } = require('../utils/signedUrl')
 const Category = require('../models/category')
 const Joi = require('joi');
 
@@ -63,15 +57,26 @@ async function addFoodItem(req, res) {
 async function editFoodItem(req, res) {
   try {
     console.log('req.body ------------------------------- ', req.body);
+    console.log('req.file ------------------------------- ', req.file);
 
     // Validate the request body against the schema
     const { error, value } = foodItemSchema.validate(req.body);
     if (error) {
       return res.status(400).send(error.details[0].message);
     }
-    let id = value._id || null
+
+    // Process the uploaded file if present
+    let imageUrl = '';
+    if (req.file) {
+      imageUrl = req.file.path; // Adjust path as per your multer configuration
+    }
+
+    console.log('JSON.stringify(value) --------------- ',JSON.stringify(value));
+    console.log('value --------------- ',value);
+
+    let id = value._id || null;
     if (id) {
-      id = createObjectId(id)
+      id = createObjectId(id);
     } else {
       return res.status(400).send('Id not found');
     }
@@ -80,7 +85,7 @@ async function editFoodItem(req, res) {
     value.category._id = createObjectId(value.category._id);
     value.restaurant._id = createObjectId(value.restaurant._id);
 
-    // Find the existing FoodItem by ID and update it
+    // Update FoodItem by ID
     const updatedFoodItem = await FoodItem.findByIdAndUpdate(
       id,
       {
@@ -106,7 +111,7 @@ async function editFoodItem(req, res) {
     console.log('Updated FoodItem ---------------------------- ', updatedFoodItem);
     res.send({ success: true, data: updatedFoodItem });
   } catch (error) {
-    console.error(error);
+    console.error('Error in editFoodItem:', error);
     res.status(500).send({ success: false, msg: error.message, error });
   }
 }
