@@ -2,6 +2,7 @@ const FoodItem = require("../models/fooditem");
 const { createObjectId } = require("../utils/createObjectId");
 const Category = require('../models/category')
 const Joi = require('joi');
+const {uploadFileToS3} = require('../utils/s3Upload')
 
 // Define a validation schema
 const foodItemSchema = Joi.object({
@@ -68,7 +69,10 @@ async function editFoodItem(req, res) {
     if (error) return res.status(400).send(error.details[0].message);
 
     // Process the uploaded file if present
-    if (req.file) value.imageUrl = req.file.path;
+    if (req.file) {
+      const s3Response = await uploadFileToS3(req.file);
+      value.imageUrl = s3Response.Location;
+    }
 
     // Validate and convert ID fields
     if (!value._id) return res.status(400).send('Id not found');

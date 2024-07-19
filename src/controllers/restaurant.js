@@ -29,7 +29,17 @@ async function getFooditemsByRestaurantId(req, res) {
   try {
     const fooditemObjectid = createObjectId(req.params.id);
     let data = await FoodItem.find({ "restaurant._id": fooditemObjectid });
-    res.send({ success: true, data });
+    let updatedData = [];
+    for (let i = 0; i < data.length; i++) {
+      let element = data[i];
+      if (element.imageUrl) {
+        let signedUrl = await generateSignedUrlFromS3Url(element.imageUrl, 'sahyog-sabka');
+        element.imageUrl = signedUrl;
+      }
+      updatedData.push(element);
+    }
+
+    res.send({ success: true, data: updatedData });
   } catch (error) {
     throw new Error(error);
   }
