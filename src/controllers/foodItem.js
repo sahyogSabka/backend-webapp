@@ -1,11 +1,5 @@
-const Restaurant = require("../models/restaurant");
 const FoodItem = require("../models/fooditem");
 const { createObjectId } = require("../utils/createObjectId");
-const bcrypt = require("bcryptjs");
-const { createSecretKey } = require("../utils/createSecretKey");
-const jwt = require("jsonwebtoken");
-const { mongoValidationError } = require('../utils/mongoValidationError')
-const { generateSignedUrlFromS3Url } = require('../utils/signedUrl')
 const Category = require('../models/category')
 const Joi = require('joi');
 
@@ -60,56 +54,44 @@ async function addFoodItem(req, res) {
     res.status(500).send({success: false, msg: error.message, error});
   }
 }
+
 async function editFoodItem(req, res) {
   try {
-    console.log('req.body ------------------------------- ', req.body);
+    let { category, restaurant, ...fields } = req.body;
+
+    // Parse JSON if category and restaurant are strings
+    if (typeof category === 'string') category = JSON.parse(category);
+    if (typeof restaurant === 'string') restaurant = JSON.parse(restaurant);
 
     // Validate the request body against the schema
-    const { error, value } = foodItemSchema.validate(req.body);
-    if (error) {
-      return res.status(400).send(error.details[0].message);
-    }
-    let id = value._id || null
-    if (id) {
-      id = createObjectId(id)
-    } else {
-      return res.status(400).send('Id not found');
-    }
+    const { error, value } = foodItemSchema.validate({ category, restaurant, ...fields });
+    if (error) return res.status(400).send(error.details[0].message);
 
-    // Convert string IDs to mongoose ObjectId
+    // Process the uploaded file if present
+    if (req.file) value.imageUrl = req.file.path;
+
+    // Validate and convert ID fields
+    if (!value._id) return res.status(400).send('Id not found');
+    value._id = createObjectId(value._id);
     value.category._id = createObjectId(value.category._id);
     value.restaurant._id = createObjectId(value.restaurant._id);
 
-    // Find the existing FoodItem by ID and update it
+    // Update FoodItem by ID
     const updatedFoodItem = await FoodItem.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          category: value.category,
-          name: value.name,
-          imageUrl: value.imageUrl,
-          description: value.description,
-          price: value.price,
-          size: value.size,
-          restaurant: value.restaurant,
-          isVeg: value.isVeg,
-          inStock: value.inStock
-        }
-      },
+      value._id,
+      { $set: { ...value } },
       { new: true } // Return the updated document
     );
 
-    if (!updatedFoodItem) {
-      return res.status(404).send('FoodItem not found');
-    }
+    if (!updatedFoodItem) return res.status(404).send('FoodItem not found');
 
-    console.log('Updated FoodItem ---------------------------- ', updatedFoodItem);
     res.send({ success: true, data: updatedFoodItem });
   } catch (error) {
-    console.error(error);
+    console.error('Error in editFoodItem:', error);
     res.status(500).send({ success: false, msg: error.message, error });
   }
 }
+
 async function categories(req, res) {
   try {
     console.log('req.body ------------------------------- ',req.body);

@@ -58,7 +58,7 @@ const fooditemSchema = new mongoose.Schema({
       required: true,
     },
     image: {
-      type: String,
+      type: Object,
     },
   },
   isVeg: {
