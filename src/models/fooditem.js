@@ -71,6 +71,20 @@ const fooditemSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+}, { versionKey: false });
+
+fooditemSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.__v;
+    return ret;
+  }
+});
+
+fooditemSchema.set('toObject', {
+  transform: (doc, ret) => {
+    delete ret.__v;
+    return ret;
+  }
 });
 
 // Define the FoodItem model
