@@ -23,16 +23,14 @@ const mailer = async (
       from: process.env.GMAIL_USER,
       to: sendTo,
       subject: subject,
-      //   text,
       html: htmlbody,
     };
 
     let info = await transporter.sendMail(message);
     return {
       msg: "Successfully submitted, we will contact you soon.",
-      info: info.messageId,
+      messageid: info.messageId,
       success: true,
-      //   preview: nodemailer.getTestMessageUrl(info),
     };
   } catch (error) {
     throw new Error(error);

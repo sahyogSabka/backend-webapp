@@ -48,6 +48,20 @@ const restaurantSchema = new mongoose.Schema({
       return ret;
     }
   }
+}, { versionKey: false });
+
+restaurantSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.__v;
+    return ret;
+  }
+});
+
+restaurantSchema.set('toObject', {
+  transform: (doc, ret) => {
+    delete ret.__v;
+    return ret;
+  }
 });
 
 // Encrypt password before saving

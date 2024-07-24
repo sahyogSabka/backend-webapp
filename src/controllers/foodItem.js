@@ -2,6 +2,7 @@ const FoodItem = require("../models/fooditem");
 const { createObjectId } = require("../utils/createObjectId");
 const Category = require('../models/category')
 const Joi = require('joi');
+const {uploadFileToS3} = require('../utils/s3Upload')
 
 // Define a validation schema
 const foodItemSchema = Joi.object({
@@ -32,11 +33,22 @@ const foodItemSchema = Joi.object({
 async function addFoodItem(req, res) {
   try {
     console.log('req.body ------------------------------- ', req.body);
+    let { category, restaurant, ...fields } = req.body;
+
+    // Parse JSON if category and restaurant are strings
+    if (typeof category === 'string') category = JSON.parse(category);
+    if (typeof restaurant === 'string') restaurant = JSON.parse(restaurant);
     
     // Validate the request body against the schema
-    const { error, value } = foodItemSchema.validate(req.body);
+    const { error, value } = foodItemSchema.validate({ category, restaurant, ...fields });
     if (error) {
       return res.status(400).send(error.details[0].message);
+    }
+
+    // Process the uploaded file if present
+    if (req.file) {
+      const s3Response = await uploadFileToS3(req.file);
+      value.imageUrl = s3Response.Location;
     }
     
     // Convert the category.id and restaurant.id to ObjectId
@@ -68,7 +80,10 @@ async function editFoodItem(req, res) {
     if (error) return res.status(400).send(error.details[0].message);
 
     // Process the uploaded file if present
-    if (req.file) value.imageUrl = req.file.path;
+    if (req.file) {
+      const s3Response = await uploadFileToS3(req.file);
+      value.imageUrl = s3Response.Location;
+    }
 
     // Validate and convert ID fields
     if (!value._id) return res.status(400).send('Id not found');

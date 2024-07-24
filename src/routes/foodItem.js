@@ -4,7 +4,7 @@ const upload = require('../middlewares/multer.middleware');
 
 const router = express.Router();
 
-router.post("/create", (req, res) => {
+router.post("/create", upload.single('image'), (req, res) => {
   return FoodItemController.addFoodItem(req, res)
 });
 
