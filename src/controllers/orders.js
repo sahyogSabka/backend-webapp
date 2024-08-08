@@ -66,7 +66,7 @@ async function sendMailOfNewlyCreatedOrder(data) {
         </tr>
         <tr>
           <td><strong>Amount</strong></td>
-          <td>${data.amount}</td>
+          <td>₹${data.amount}</td>
         </tr>
         <tr>
           <td><strong>User id</strong></td>
@@ -89,9 +89,9 @@ async function sendMailOfNewlyCreatedOrder(data) {
             <th><strong>Category</strong></th>
             <th><strong>Restaurant</strong></th>
             <th><strong>Description</strong></th>
-            <th><strong>Price</strong></th>
+            <th><strong>Price(in ₹)</strong></th>
             <th><strong>Quantity</strong></th>
-            <th><strong>Total</strong></th>
+            <th><strong>Total(in ₹)</strong></th>
           </tr>
           ${data.items
             .map(
