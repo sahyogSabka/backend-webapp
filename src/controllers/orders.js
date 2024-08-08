@@ -4,6 +4,7 @@ const { createObjectId } = require("../utils/createObjectId");
 const { updateUser } = require("../controllers/users");
 const OrderSchema = require("../models/order");
 const Mailer = require("../utils/mailer");
+const moment = require("moment");
 
 async function makePayment(req, res) {
   // if the amount to be charged is ₹299.00, then pass 29900 means 29900 paise
@@ -58,61 +59,57 @@ async function sendMailOfNewlyCreatedOrder(data) {
       There is a new Order.
       </div>
       <br/>
-      <strong>
       <table>
         <tr>
-          <td>Order id</td>
+          <td><strong>Order id</strong></td>
           <td>${data.orderId}</td>
         </tr>
         <tr>
-          <td>Amount</td>
+          <td><strong>Amount</strong></td>
           <td>${data.amount}</td>
         </tr>
         <tr>
-          <td>User id</td>
+          <td><strong>User id</strong></td>
           <td>${data.userId}</td>
         </tr>
         <tr>
-          <td>Name</td>
+          <td><strong>Name</strong></td>
           <td>${data.userName}</td>
         </tr>
         <tr>
-          <td>Mobile</td>
+          <td><strong>Mobile</strong></td>
           <td>${data.mobile}</td>
         </tr>
-        <tr>
-          <td>Items</td>
-          <td>
-            <table border="1">
-              <tr>
-                <th>id</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Restaurant</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Quantity</th>
-              </tr>
-              ${data.items
-                .map(
-                  (elem) => `
-                <tr>
-                  <td>${elem._id}</td>
-                  <td>${elem.name}</td>
-                  <td>${elem.category?._id}</td>
-                  <td>${elem.restaurant?.name}</td>
-                  <td>${elem.description}</td>
-                  <td>${elem.price}</td>
-                  <td>${elem.quantity}</td>
-                </tr>
-              `
-                )
-                .join("")}
-            </table>
-          </td>
-        </tr>
       </table>
-      </strong>`;
+      <table border="1">
+        <caption><strong>ITEMS</strong></caption>
+          <tr>
+            <th><strong>Id</strong></th>
+            <th><strong>Name</strong></th>
+            <th><strong>Category</strong></th>
+            <th><strong>Restaurant</strong></th>
+            <th><strong>Description</strong></th>
+            <th><strong>Price</strong></th>
+            <th><strong>Quantity</strong></th>
+            <th><strong>Total</strong></th>
+          </tr>
+          ${data.items
+            .map(
+              (elem) => `
+            <tr>
+              <td>${elem._id}</td>
+              <td>${elem.name}</td>
+              <td>${elem.category?.name}</td>
+              <td>${elem.restaurant?.name}</td>
+              <td>${elem.description}</td>
+              <td>${elem.price}</td>
+              <td>${elem.quantity}</td>
+              <td>${elem.price * elem.quantity}</td>
+            </tr>
+          `
+            )
+            .join("")}
+        </table>`;
     let subject = `There is a new order`;
 
     await Mailer(htmlbody, subject);
@@ -124,9 +121,6 @@ async function sendMailOfNewlyCreatedOrder(data) {
 async function createOrder(req, res) {
   let { orderId, paymentId, userId, amount, name, mobile, orderData } =
     req.body;
-  // console.log('orderId ----------------------->> ',orderId);
-  // console.log('----------------------- ',req.body.orderData);
-  // return {}
   try {
     // Save the order to the database
     let createdOrder = await addOrder({
@@ -135,19 +129,6 @@ async function createOrder(req, res) {
       amount,
       items: orderData,
     });
-
-    console.log(
-      "{ orderId: createdOrder._id, userId: createdOrder.userId, userName: name, mobile: mobile, paymentId: createdOrder.paymentId, amount: createdOrder.amount, items: createdOrder.items } ---------------------- ",
-      JSON.stringify({
-        orderId: createdOrder._id,
-        userId: createdOrder.userId,
-        userName: name,
-        mobile: mobile,
-        paymentId: createdOrder.paymentId,
-        amount: createdOrder.amount,
-        items: createdOrder.items,
-      })
-    );
 
     if (createdOrder._id) {
       await sendMailOfNewlyCreatedOrder({
@@ -167,6 +148,7 @@ async function createOrder(req, res) {
       orders: {
         orderId: createObjectId(createdOrder._id),
         amount,
+        prepareUpto: moment(createdOrder.prepareUpto).toDate(),
         createdAt: new Date(),
         data: orderData,
       },
@@ -182,4 +164,15 @@ async function createOrder(req, res) {
   }
 }
 
-module.exports = { makePayment, verifyPayment, createOrder };
+async function getOrdersByUser(req, res) {
+  try {
+    let userId = req.params?.id
+    if (!userId) res.send({ success: false, msg: 'Userid not found.'})
+    let data = await OrderSchema.find({ userId: createObjectId(userId) });
+    res.send({ success: true, data });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+module.exports = { makePayment, verifyPayment, createOrder, getOrdersByUser };
