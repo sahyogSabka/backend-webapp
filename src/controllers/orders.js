@@ -58,40 +58,40 @@ async function sendMailOfNewlyCreatedOrder(data) {
       There is a new Order.
       </div>
       <br/>
-      <strong>
       <table>
         <tr>
-          <td>Order id</td>
+          <td><strong>Order id</strong></td>
           <td>${data.orderId}</td>
         </tr>
         <tr>
-          <td>Amount</td>
+          <td><strong>Amount</strong></td>
           <td>${data.amount}</td>
         </tr>
         <tr>
-          <td>User id</td>
+          <td><strong>User id</strong></td>
           <td>${data.userId}</td>
         </tr>
         <tr>
-          <td>Name</td>
+          <td><strong>Name</strong></td>
           <td>${data.userName}</td>
         </tr>
         <tr>
-          <td>Mobile</td>
+          <td><strong>Mobile</strong></td>
           <td>${data.mobile}</td>
         </tr>
         <tr>
-          <td>Items</td>
-          <td>
-            <table border="1">
-              <tr>
-                <th>id</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Restaurant</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Quantity</th>
+        <td>
+        <table border="1">
+        <caption><strong>ITEMS</strong></caption>
+            <tr>
+                <th><strong>Id</strong></th>
+                <th><strong>Name</strong></th>
+                <th><strong>Category</strong></th>
+                <th><strong>Restaurant</strong></th>
+                <th><strong>Description</strong></th>
+                <th><strong>Price</strong></th>
+                <th><strong>Quantity</strong></th>
+                <th><strong>Total</strong></th>
               </tr>
               ${data.items
                 .map(
@@ -104,6 +104,7 @@ async function sendMailOfNewlyCreatedOrder(data) {
                   <td>${elem.description}</td>
                   <td>${elem.price}</td>
                   <td>${elem.quantity}</td>
+                  <td>${elem.price * elem.quantity}</td>
                 </tr>
               `
                 )
@@ -111,8 +112,7 @@ async function sendMailOfNewlyCreatedOrder(data) {
             </table>
           </td>
         </tr>
-      </table>
-      </strong>`;
+      </table>`;
     let subject = `There is a new order`;
 
     await Mailer(htmlbody, subject);
