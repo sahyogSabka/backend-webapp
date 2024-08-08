@@ -12,6 +12,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    createdAt: {
+      type: Date,
+      default: new Date()
+    },
     amount: {
       type: Number,
       required: true,

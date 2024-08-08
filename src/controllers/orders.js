@@ -99,7 +99,7 @@ async function sendMailOfNewlyCreatedOrder(data) {
             <tr>
               <td>${elem._id}</td>
               <td>${elem.name}</td>
-              <td>${elem.category?._id}</td>
+              <td>${elem.category?.name}</td>
               <td>${elem.restaurant?.name}</td>
               <td>${elem.description}</td>
               <td>${elem.price}</td>
@@ -164,4 +164,15 @@ async function createOrder(req, res) {
   }
 }
 
-module.exports = { makePayment, verifyPayment, createOrder };
+async function getOrdersByUser(req, res) {
+  try {
+    let userId = req.params?.id
+    if (!userId) res.send({ success: false, msg: 'Userid not found.'})
+    let data = await OrderSchema.find({ userId: createObjectId(userId) });
+    res.send({ success: true, data });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+module.exports = { makePayment, verifyPayment, createOrder, getOrdersByUser };
