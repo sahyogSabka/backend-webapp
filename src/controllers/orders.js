@@ -79,9 +79,8 @@ async function sendMailOfNewlyCreatedOrder(data) {
           <td><strong>Mobile</strong></td>
           <td>${data.mobile}</td>
         </tr>
-        <tr>
-        <td>
-        <table border="1">
+      </table>
+      <table border="1">
         <caption><strong>ITEMS</strong></caption>
             <tr>
                 <th><strong>Id</strong></th>
@@ -109,10 +108,7 @@ async function sendMailOfNewlyCreatedOrder(data) {
               `
                 )
                 .join("")}
-            </table>
-          </td>
-        </tr>
-      </table>`;
+            </table>`;
     let subject = `There is a new order`;
 
     await Mailer(htmlbody, subject);
