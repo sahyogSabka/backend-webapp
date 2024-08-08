@@ -55,37 +55,64 @@ async function addOrder({ userId, paymentId, amount, items }) {
 async function sendMailOfNewlyCreatedOrder(data) {
   try {
     let htmlbody = `<div>
-    There is a new Order.
-    </div>
-    <br/>
-    <strong>
-    <table>
-      <tr>
-        <td>Order id</td>
-        <td>${data.orderId}</td>
-      </tr>
-      <tr>
-        <td>Amount</td>
-        <td>${data.amount}</td>
-      </tr>
-      <tr>
-        <td>User id</td>
-        <td>${data.userId}</td>
-      </tr>
-      <tr>
-        <td>Name</td>
-        <td>${data.userName}</td>
-      </tr>
-      <tr>
-        <td>Mobile</td>
-        <td>${data.mobile}</td>
-      </tr>
-      <tr>
-        <td>Items</td>
-        <td>${JSON.stringify(data.items)}</td>
-      </tr>
-    </table>
-    </strong>`;
+      There is a new Order.
+      </div>
+      <br/>
+      <strong>
+      <table>
+        <tr>
+          <td>Order id</td>
+          <td>${data.orderId}</td>
+        </tr>
+        <tr>
+          <td>Amount</td>
+          <td>${data.amount}</td>
+        </tr>
+        <tr>
+          <td>User id</td>
+          <td>${data.userId}</td>
+        </tr>
+        <tr>
+          <td>Name</td>
+          <td>${data.userName}</td>
+        </tr>
+        <tr>
+          <td>Mobile</td>
+          <td>${data.mobile}</td>
+        </tr>
+        <tr>
+          <td>Items</td>
+          <td>
+            <table border="1">
+              <tr>
+                <th>id</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Restaurant</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Quantity</th>
+              </tr>
+              ${data.items
+                .map(
+                  (elem) => `
+                <tr>
+                  <td>${elem._id}</td>
+                  <td>${elem.name}</td>
+                  <td>${elem.category?._id}</td>
+                  <td>${elem.restaurant?.name}</td>
+                  <td>${elem.description}</td>
+                  <td>${elem.price}</td>
+                  <td>${elem.quantity}</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </table>
+          </td>
+        </tr>
+      </table>
+      </strong>`;
     let subject = `There is a new order`;
 
     await Mailer(htmlbody, subject);
@@ -97,9 +124,9 @@ async function sendMailOfNewlyCreatedOrder(data) {
 async function createOrder(req, res) {
   let { orderId, paymentId, userId, amount, name, mobile, orderData } =
     req.body;
-    // console.log('orderId ----------------------->> ',orderId);
-    // console.log('----------------------- ',req.body.orderData);
-    // return {}
+  // console.log('orderId ----------------------->> ',orderId);
+  // console.log('----------------------- ',req.body.orderData);
+  // return {}
   try {
     // Save the order to the database
     let createdOrder = await addOrder({
@@ -109,12 +136,30 @@ async function createOrder(req, res) {
       items: orderData,
     });
 
-    console.log('{ orderId: createdOrder._id, userId: createdOrder.userId, userName: name, mobile: mobile, paymentId: createdOrder.paymentId, amount: createdOrder.amount, items: createdOrder.items } ---------------------- ',JSON.stringify({ orderId: createdOrder._id, userId: createdOrder.userId, userName: name, mobile: mobile, paymentId: createdOrder.paymentId, amount: createdOrder.amount, items: createdOrder.items }));
+    console.log(
+      "{ orderId: createdOrder._id, userId: createdOrder.userId, userName: name, mobile: mobile, paymentId: createdOrder.paymentId, amount: createdOrder.amount, items: createdOrder.items } ---------------------- ",
+      JSON.stringify({
+        orderId: createdOrder._id,
+        userId: createdOrder.userId,
+        userName: name,
+        mobile: mobile,
+        paymentId: createdOrder.paymentId,
+        amount: createdOrder.amount,
+        items: createdOrder.items,
+      })
+    );
 
     if (createdOrder._id) {
-      await sendMailOfNewlyCreatedOrder({ orderId: createdOrder._id, userId: createdOrder.userId, userName: name, mobile: mobile, paymentId: createdOrder.paymentId, amount: createdOrder.amount, items: createdOrder.items })
+      await sendMailOfNewlyCreatedOrder({
+        orderId: createdOrder._id,
+        userId: createdOrder.userId,
+        userName: name,
+        mobile: mobile,
+        paymentId: createdOrder.paymentId,
+        amount: createdOrder.amount,
+        items: createdOrder.items,
+      });
     }
-
 
     let userUpdated = await updateUser(userId, {
       name,
