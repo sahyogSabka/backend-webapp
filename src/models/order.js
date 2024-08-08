@@ -19,7 +19,7 @@ const orderSchema = new mongoose.Schema(
     prepareUpto: {
       type: Date,
       required: true,
-      default: new Date() + process.env.ORDER_TIME_IN_MINUTES
+      default: () => moment().add(parseInt(process.env.ORDER_TIME_IN_MINUTES, 10), 'minutes').toDate(),
     },
     items: {
       type: Array,
@@ -28,15 +28,6 @@ const orderSchema = new mongoose.Schema(
   },
   { versionKey: false }
 );
-
-// Middleware to set the prepareUpto field before saving
-orderSchema.pre("save", function(next) {
-  if (!this.prepareUpto) {
-    const orderTimeInMinutes = parseInt(process.env.ORDER_TIME_IN_MINUTES, 10) || 0;
-    this.prepareUpto = moment().add(orderTimeInMinutes, "minutes").toDate();
-  }
-  next();
-});
 
 orderSchema.set('toJSON', {
   transform: (doc, ret) => {
