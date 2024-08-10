@@ -17,6 +17,7 @@ const userRoutes = require('./src/routes/users')
 const authenticateRoute = require('./src/routes/authenticate')
 const foodItemRoute = require('./src/routes/foodItem')
 
+debugger
 // Routes
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);

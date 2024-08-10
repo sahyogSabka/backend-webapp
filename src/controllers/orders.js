@@ -145,13 +145,13 @@ async function createOrder(req, res) {
     let userUpdated = await updateUser(userId, {
       name,
       mobile,
-      orders: {
-        orderId: createObjectId(createdOrder._id),
-        amount,
-        prepareUpto: moment(createdOrder.prepareUpto).toDate(),
-        createdAt: new Date(),
-        data: orderData,
-      },
+      // orders: {
+      //   orderId: createObjectId(createdOrder._id),
+      //   amount,
+      //   prepareUpto: moment(createdOrder.prepareUpto).toDate(),
+      //   createdAt: new Date(),
+      //   data: orderData,
+      // },
     });
 
     res.json({
@@ -175,4 +175,37 @@ async function getOrdersByUser(req, res) {
   }
 }
 
-module.exports = { makePayment, verifyPayment, createOrder, getOrdersByUser };
+async function getOrdersByRestaurant(req, res) {
+  try {
+    let restoId = req.params?.id
+    console.log('restoId ------------------ ',restoId);
+    if (!restoId) res.send({ success: false, msg: 'Restaurantid not found.'})
+    // let data = await OrderSchema.find({ 'items.restaurant._id': restoId });
+    let data = await OrderSchema.aggregate([
+      {
+        '$match': {
+          'items.restaurant._id': restoId
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'users', 
+          'localField': 'userId', 
+          'foreignField': '_id', 
+          'as': 'user'
+        }
+      },
+      {
+        '$unwind': {
+          path: '$user',
+          preserveNullAndEmptyArrays: true // To keep orders without a matching user
+        }
+      }
+    ]);;
+    res.send({ success: true, data });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+module.exports = { makePayment, verifyPayment, createOrder, getOrdersByUser, getOrdersByRestaurant };
