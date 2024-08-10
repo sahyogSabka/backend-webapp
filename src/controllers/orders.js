@@ -3,6 +3,8 @@ const { paiseToRupee } = require("../utils/paiseToRupee");
 const { createObjectId } = require("../utils/createObjectId");
 const { updateUser } = require("../controllers/users");
 const OrderSchema = require("../models/order");
+const Mailer = require("../utils/mailer");
+const moment = require("moment");
 
 async function makePayment(req, res) {
   // if the amount to be charged is ₹299.00, then pass 29900 means 29900 paise
@@ -51,25 +53,105 @@ async function addOrder({ userId, paymentId, amount, items }) {
   }
 }
 
+async function sendMailOfNewlyCreatedOrder(data) {
+  try {
+    let htmlbody = `<div>
+      There is a new Order.
+      </div>
+      <br/>
+      <table>
+        <tr>
+          <td><strong>Order id</strong></td>
+          <td>${data.orderId}</td>
+        </tr>
+        <tr>
+          <td><strong>Amount</strong></td>
+          <td>₹${data.amount}</td>
+        </tr>
+        <tr>
+          <td><strong>User id</strong></td>
+          <td>${data.userId}</td>
+        </tr>
+        <tr>
+          <td><strong>Name</strong></td>
+          <td>${data.userName}</td>
+        </tr>
+        <tr>
+          <td><strong>Mobile</strong></td>
+          <td>${data.mobile}</td>
+        </tr>
+      </table>
+      <table border="1">
+        <caption><strong>ITEMS</strong></caption>
+          <tr>
+            <th><strong>Id</strong></th>
+            <th><strong>Name</strong></th>
+            <th><strong>Category</strong></th>
+            <th><strong>Restaurant</strong></th>
+            <th><strong>Description</strong></th>
+            <th><strong>Price(in ₹)</strong></th>
+            <th><strong>Quantity</strong></th>
+            <th><strong>Total(in ₹)</strong></th>
+          </tr>
+          ${data.items
+            .map(
+              (elem) => `
+            <tr>
+              <td>${elem._id}</td>
+              <td>${elem.name}</td>
+              <td>${elem.category?.name}</td>
+              <td>${elem.restaurant?.name}</td>
+              <td>${elem.description}</td>
+              <td>${elem.price}</td>
+              <td>${elem.quantity}</td>
+              <td>${elem.price * elem.quantity}</td>
+            </tr>
+          `
+            )
+            .join("")}
+        </table>`;
+    let subject = `There is a new order`;
+
+    await Mailer(htmlbody, subject);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 async function createOrder(req, res) {
   let { orderId, paymentId, userId, amount, name, mobile, orderData } =
     req.body;
   try {
+    // Save the order to the database
     let createdOrder = await addOrder({
       userId,
       paymentId,
       amount,
       items: orderData,
     });
+
+    if (createdOrder._id) {
+      await sendMailOfNewlyCreatedOrder({
+        orderId: createdOrder._id,
+        userId: createdOrder.userId,
+        userName: name,
+        mobile: mobile,
+        paymentId: createdOrder.paymentId,
+        amount: createdOrder.amount,
+        items: createdOrder.items,
+      });
+    }
+
     let userUpdated = await updateUser(userId, {
       name,
       mobile,
-      orders: {
-        orderId: createObjectId(createdOrder._id),
-        amount,
-        createdAt: new Date(),
-        data: orderData,
-      },
+      // orders: {
+      //   orderId: createObjectId(createdOrder._id),
+      //   amount,
+      //   prepareUpto: moment(createdOrder.prepareUpto).toDate(),
+      //   createdAt: new Date(),
+      //   data: orderData,
+      // },
     });
 
     res.json({
@@ -82,4 +164,48 @@ async function createOrder(req, res) {
   }
 }
 
-module.exports = { makePayment, verifyPayment, createOrder };
+async function getOrdersByUser(req, res) {
+  try {
+    let userId = req.params?.id
+    if (!userId) res.send({ success: false, msg: 'Userid not found.'})
+    let data = await OrderSchema.find({ userId: createObjectId(userId) });
+    res.send({ success: true, data });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+async function getOrdersByRestaurant(req, res) {
+  try {
+    let restoId = req.params?.id
+    console.log('restoId ------------------ ',restoId);
+    if (!restoId) res.send({ success: false, msg: 'Restaurantid not found.'})
+    // let data = await OrderSchema.find({ 'items.restaurant._id': restoId });
+    let data = await OrderSchema.aggregate([
+      {
+        '$match': {
+          'items.restaurant._id': restoId
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'users', 
+          'localField': 'userId', 
+          'foreignField': '_id', 
+          'as': 'user'
+        }
+      },
+      {
+        '$unwind': {
+          path: '$user',
+          preserveNullAndEmptyArrays: true // To keep orders without a matching user
+        }
+      }
+    ]);;
+    res.send({ success: true, data });
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+module.exports = { makePayment, verifyPayment, createOrder, getOrdersByUser, getOrdersByRestaurant };

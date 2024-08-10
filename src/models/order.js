@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 // Define the User schema
 const orderSchema = new mongoose.Schema(
@@ -11,9 +12,18 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    createdAt: {
+      type: Date,
+      default: new Date()
+    },
     amount: {
       type: Number,
       required: true,
+    },
+    prepareUpto: {
+      type: Date,
+      required: true,
+      default: () => moment().add(parseInt(process.env.ORDER_TIME_IN_MINUTES, 10), 'minutes').toDate(),
     },
     items: {
       type: Array,
