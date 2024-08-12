@@ -66,7 +66,7 @@ async function sendMailOfNewlyCreatedOrder(data) {
         </tr>
         <tr>
           <td><strong>Amount</strong></td>
-          <td>${data.amount}</td>
+          <td>₹${data.amount}</td>
         </tr>
         <tr>
           <td><strong>User id</strong></td>
@@ -89,9 +89,9 @@ async function sendMailOfNewlyCreatedOrder(data) {
             <th><strong>Category</strong></th>
             <th><strong>Restaurant</strong></th>
             <th><strong>Description</strong></th>
-            <th><strong>Price</strong></th>
+            <th><strong>Price(in ₹)</strong></th>
             <th><strong>Quantity</strong></th>
-            <th><strong>Total</strong></th>
+            <th><strong>Total(in ₹)</strong></th>
           </tr>
           ${data.items
             .map(
@@ -145,13 +145,13 @@ async function createOrder(req, res) {
     let userUpdated = await updateUser(userId, {
       name,
       mobile,
-      orders: {
-        orderId: createObjectId(createdOrder._id),
-        amount,
-        prepareUpto: moment(createdOrder.prepareUpto).toDate(),
-        createdAt: new Date(),
-        data: orderData,
-      },
+      // orders: {
+      //   orderId: createObjectId(createdOrder._id),
+      //   amount,
+      //   prepareUpto: moment(createdOrder.prepareUpto).toDate(),
+      //   createdAt: new Date(),
+      //   data: orderData,
+      // },
     });
 
     res.json({
@@ -166,13 +166,67 @@ async function createOrder(req, res) {
 
 async function getOrdersByUser(req, res) {
   try {
-    let userId = req.params?.id
-    if (!userId) res.send({ success: false, msg: 'Userid not found.'})
+    let userId = req.params?.id;
+    if (!userId) res.send({ success: false, msg: "Userid not found." });
     let data = await OrderSchema.find({ userId: createObjectId(userId) });
     res.send({ success: true, data });
   } catch (error) {
-    throw new Error(error);
+    res.status(500).send(error);
   }
 }
 
-module.exports = { makePayment, verifyPayment, createOrder, getOrdersByUser };
+async function getOrdersByRestaurant(req, res) {
+  try {
+    let restoId = req.params?.id;
+    if (!restoId) res.send({ success: false, msg: "Restaurantid not found." });
+    let data = await OrderSchema.aggregate([
+      {
+        $match: {
+          "items.restaurant._id": restoId,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true, // To keep orders without a matching user
+        },
+      },
+    ]);
+    res.send({ success: true, data });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
+async function orderStatusUpdate(req, res) {
+  try {
+    let { orderId, status } = req.body;
+    if (!orderId) res.send({ success: false, msg: "Orderid not found." });
+    let data = await OrderSchema.updateOne(
+      { _id: createObjectId(orderId) },
+      {
+        $set: { ...status },
+      }
+    );
+    res.send({ success: true, data, msg: 'Status successfully update.' });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
+module.exports = {
+  makePayment,
+  verifyPayment,
+  createOrder,
+  getOrdersByUser,
+  getOrdersByRestaurant,
+  orderStatusUpdate,
+};
