@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 const mailer = async (
   htmlbody = "<b>Hello world?</b>",
   subject = "Query From Sahyog Sabka!",
-  sendTo = process.env.MAIL_SENT_TO || [
+  sendTo = process.env.MYAPP_MAIL_SENT_TO || [
     "hishrma02@gmail.com",
     "himanshu.sharma@gig4ce.com",
   ]
@@ -12,15 +12,15 @@ const mailer = async (
     let config = {
       service: "gmail",
       auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASS,
+        user: process.env.MYAPP_GMAIL_USER,
+        pass: process.env.MYAPP_GMAIL_APP_PASS,
       },
     };
 
     let transporter = nodemailer.createTransport(config);
 
     let message = {
-      from: process.env.GMAIL_USER,
+      from: process.env.MYAPP_GMAIL_USER,
       to: sendTo,
       subject: subject,
       html: htmlbody,

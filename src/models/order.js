@@ -23,7 +23,7 @@ const orderSchema = new mongoose.Schema(
     prepareUpto: {
       type: Date,
       required: true,
-      default: () => moment().add(parseInt(process.env.ORDER_TIME_IN_MINUTES, 10), 'minutes').toDate(),
+      default: () => moment().add(parseInt(process.env.MYAPP_ORDER_TIME_IN_MINUTES, 10), 'minutes').toDate(),
     },
     isDelivered: {
       type: Boolean,
