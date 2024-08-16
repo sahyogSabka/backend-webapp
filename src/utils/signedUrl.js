@@ -16,10 +16,10 @@ const generateSignedUrlFromS3Url = async (s3Url, bucketName) => {
 
   // Initialize the S3 client
   const s3Client = new S3Client({
-    region: process.env.AWS_REGION,
+    region: process.env.MYAPP_AWS_REGION,
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY, // Replace with your access key
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // Replace with your secret key
+      accessKeyId: process.env.MYAPP_AWS_ACCESS_KEY, // Replace with your access key
+      secretAccessKey: process.env.MYAPP_AWS_SECRET_ACCESS_KEY, // Replace with your secret key
     },
   });
 

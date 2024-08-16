@@ -5,9 +5,9 @@ const unlinkFile = util.promisify(fs.unlink); // Promisify fs.unlink for easier 
 
 // Configure the AWS SDK
 AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
+  accessKeyId: process.env.MYAPP_AWS_ACCESS_KEY,
+  secretAccessKey: process.env.MYAPP_AWS_SECRET_ACCESS_KEY,
+  region: process.env.MYAPP_AWS_REGION,
 });
 
 const s3 = new AWS.S3();
