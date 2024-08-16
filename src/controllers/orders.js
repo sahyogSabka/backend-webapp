@@ -166,46 +166,67 @@ async function createOrder(req, res) {
 
 async function getOrdersByUser(req, res) {
   try {
-    let userId = req.params?.id
-    if (!userId) res.send({ success: false, msg: 'Userid not found.'})
+    let userId = req.params?.id;
+    if (!userId) res.send({ success: false, msg: "Userid not found." });
     let data = await OrderSchema.find({ userId: createObjectId(userId) });
     res.send({ success: true, data });
   } catch (error) {
-    throw new Error(error);
+    res.status(500).send(error);
   }
 }
 
 async function getOrdersByRestaurant(req, res) {
   try {
-    let restoId = req.params?.id
-    console.log('restoId ------------------ ',restoId);
-    if (!restoId) res.send({ success: false, msg: 'Restaurantid not found.'})
-    // let data = await OrderSchema.find({ 'items.restaurant._id': restoId });
+    let restoId = req.params?.id;
+    if (!restoId) res.send({ success: false, msg: "Restaurantid not found." });
     let data = await OrderSchema.aggregate([
       {
-        '$match': {
-          'items.restaurant._id': restoId
-        }
+        $match: {
+          "items.restaurant._id": restoId,
+        },
       },
       {
-        '$lookup': {
-          'from': 'users', 
-          'localField': 'userId', 
-          'foreignField': '_id', 
-          'as': 'user'
-        }
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
       },
       {
-        '$unwind': {
-          path: '$user',
-          preserveNullAndEmptyArrays: true // To keep orders without a matching user
-        }
-      }
-    ]);;
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true, // To keep orders without a matching user
+        },
+      },
+    ]);
     res.send({ success: true, data });
   } catch (error) {
-    throw new Error(error);
+    res.status(500).send(error);
   }
 }
 
-module.exports = { makePayment, verifyPayment, createOrder, getOrdersByUser, getOrdersByRestaurant };
+async function orderStatusUpdate(req, res) {
+  try {
+    let { orderId, status } = req.body;
+    if (!orderId) res.send({ success: false, msg: "Orderid not found." });
+    let data = await OrderSchema.updateOne(
+      { _id: createObjectId(orderId) },
+      {
+        $set: { ...status },
+      }
+    );
+    res.send({ success: true, data, msg: 'Status successfully update.' });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
+module.exports = {
+  makePayment,
+  verifyPayment,
+  createOrder,
+  getOrdersByUser,
+  getOrdersByRestaurant,
+  orderStatusUpdate,
+};

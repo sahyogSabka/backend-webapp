@@ -25,6 +25,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       default: () => moment().add(parseInt(process.env.ORDER_TIME_IN_MINUTES, 10), 'minutes').toDate(),
     },
+    isDelivered: {
+      type: Boolean,
+      default: false
+    },
     items: {
       type: Array,
       required: true,

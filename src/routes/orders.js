@@ -27,4 +27,8 @@ router.get("/:id", (req, res) => {
   return orderController.getOrdersByUser(req, res);
 });
 
+router.patch("/update", async (req, res) => {
+  return await orderController.orderStatusUpdate(req, res);
+});
+
 module.exports = router;
