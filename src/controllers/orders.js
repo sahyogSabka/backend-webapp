@@ -31,7 +31,7 @@ function verifyPayment(req, res) {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       req.body;
 
-    const hmac = crypto.createHmac("sha256", "TlmDEzTuhiDRqxVJhPi2d8Ea");
+    const hmac = crypto.createHmac("sha256", process.env.MYAPP_RAZORPAY_key_secret);
     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
     const generated_signature = hmac.digest("hex");
 
