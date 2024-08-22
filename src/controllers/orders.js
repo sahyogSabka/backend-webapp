@@ -5,6 +5,7 @@ const { updateUser } = require("../controllers/users");
 const OrderSchema = require("../models/order");
 const Mailer = require("../utils/mailer");
 const moment = require("moment");
+const { twilioConf, twilioConfCallMultipleNumbers } = require("../utils/twilioConf");
 
 async function makePayment(req, res) {
   // if the amount to be charged is ₹299.00, then pass 29900 means 29900 paise
@@ -153,6 +154,7 @@ async function createOrder(req, res) {
       //   data: orderData,
       // },
     });
+    twilioConfCallMultipleNumbers()
 
     res.json({
       success: true,
