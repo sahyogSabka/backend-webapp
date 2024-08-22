@@ -16,9 +16,11 @@ const orderRoutes = require('./src/routes/orders')
 const userRoutes = require('./src/routes/users')
 const authenticateRoute = require('./src/routes/authenticate')
 const foodItemRoute = require('./src/routes/foodItem')
+const twilioRoute = require('./src/routes/twilio')
 
 debugger
 // Routes
+app.use('/twilio', twilioRoute)
 app.use("/restaurant", restaurantRoutes);
 app.use("/order", orderRoutes);
 app.use("/user", userRoutes);
