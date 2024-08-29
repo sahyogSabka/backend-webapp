@@ -103,7 +103,7 @@ async function createRestaurant(req, res) {
     // Save the restaurant to the database
     let savedRestaurant = await restaurant.save();
     let htmlbody = `<b>Hello ${name} We got your Query. We will get in touch with you soon.</b>`;
-    let subject = `Sahyog Sabka`;
+    let subject = `DriveFood`;
     let sendTo = [email];
 
     if (savedRestaurant._id) {

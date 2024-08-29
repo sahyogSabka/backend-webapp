@@ -28,7 +28,7 @@ app.use("/authenticate", authenticateRoute);
 app.use("/foodItem", foodItemRoute);
 
 // Home Route this will be in end of all routes
-app.use("/", (req, res) => res.send({success: true, msg: 'Hello in Sahyog Sabka.'}));
+app.use("/", (req, res) => res.send({success: true, msg: 'Hello in DriveFood.'}));
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`)
