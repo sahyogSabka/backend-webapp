@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 
 const mailer = async (
   htmlbody = "<b>Hello world?</b>",
-  subject = "Query From Sahyog Sabka!",
+  subject = "Query From DriveFood!",
   sendTo = process.env.MYAPP_MAIL_SENT_TO || [
     "hishrma02@gmail.com",
     "himanshu.sharma@gig4ce.com",
