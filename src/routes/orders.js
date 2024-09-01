@@ -2,7 +2,6 @@ const express = require("express");
 const orderController = require("../controllers/orders");
 
 const router = express.Router();
-debugger
 
 router.post("/payment", async (req, res) => {
   return orderController.makePayment(req, res);

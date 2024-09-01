@@ -104,7 +104,7 @@ async function createRestaurant(req, res) {
     let savedRestaurant = await restaurant.save();
     let htmlbody = `<b>Hello ${name} We got your Query. We will get in touch with you soon.</b>`;
     let subject = `DriveFood`;
-    let sendTo = [email];
+    let sendTo = [process.env.MYAPP_GMAIL_USER];
 
     if (savedRestaurant._id) {
       await Promise.all([
