@@ -14,8 +14,8 @@ const foodItemSchema = Joi.object({
   name: Joi.string().required(),
   image: Joi.string(),
   description: Joi.string().required(),
-  price: Joi.number().required(),
-  size: Joi.string().required(),
+  // price: Joi.number().required(),
+  size: Joi.array().required(),
   restaurant: Joi.object({
     _id: Joi.string().required(), // Should match your mongoose ID type
     name: Joi.string().required(),
@@ -38,6 +38,7 @@ async function addFoodItem(req, res) {
     // Parse JSON if category and restaurant are strings
     if (typeof category === 'string') category = JSON.parse(category);
     if (typeof restaurant === 'string') restaurant = JSON.parse(restaurant);
+    if (typeof fields.size === 'string') fields.size = JSON.parse(fields.size);
     
     // Validate the request body against the schema
     const { error, value } = foodItemSchema.validate({ category, restaurant, ...fields });
