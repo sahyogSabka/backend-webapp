@@ -24,12 +24,12 @@ const fooditemSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  price: {
-    type: Number,
-    required: true,
-  },
+  // price: {
+  //   type: Number,
+  //   required: true,
+  // },
   size: {
-    type: String,
+    type: Array,
     required: true,
   },
   restaurant: {
