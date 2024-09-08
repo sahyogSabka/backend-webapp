@@ -56,6 +56,7 @@ async function addOrder({ userId, paymentId, amount, items }) {
 
 async function sendMailOfNewlyCreatedOrder(data) {
   try {
+    
     let htmlbody = `<div>
       There is a new Order.
       </div>
@@ -113,7 +114,10 @@ async function sendMailOfNewlyCreatedOrder(data) {
         </table>`;
     let subject = `There is a new order`;
 
-    await Mailer(htmlbody, subject);
+    let restaurantEmails = data.items.map(item => item.restaurant.email)
+    let uniqueRestaurantEmails = [...new Set(restaurantEmails)]
+    
+    await Mailer(htmlbody, subject, uniqueRestaurantEmails);
   } catch (error) {
     throw new Error(error);
   }
