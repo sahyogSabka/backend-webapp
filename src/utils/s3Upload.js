@@ -20,7 +20,7 @@ async function uploadFileToS3(file, bucketName = "sahyog-sabka/foodItem") {
       Key: `${Date.now()}-${file.originalname?.split(' ')?.join('-')}`, // File name you want to save as in S3
       Body: fileContent,
       ContentType: file.mimetype,
-    };
+    }; 
   
     const s3Response = await s3.upload(params).promise();
     await unlinkFile(file.path); // Delete the file from local storage
