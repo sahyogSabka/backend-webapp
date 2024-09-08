@@ -17,7 +17,7 @@ async function uploadFileToS3(file, bucketName = "sahyog-sabka/foodItem") {
   
     const params = {
       Bucket: bucketName,
-      Key: `${Date.now()}-${file.originalname}`, // File name you want to save as in S3
+      Key: `${Date.now()}-${file.originalname?.split(' ')?.join('-')}`, // File name you want to save as in S3
       Body: fileContent,
       ContentType: file.mimetype,
     };
