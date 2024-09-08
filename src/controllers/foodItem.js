@@ -48,7 +48,7 @@ async function addFoodItem(req, res) {
 
     // Process the uploaded file if present
     if (req.file) {
-      const s3Response = await uploadFileToS3(req.file);
+      const s3Response = await uploadFileToS3(req.file.buffer, req.file.originalname, req.file.mimetype);
       value.imageUrl = s3Response.Location;
     }
     
@@ -79,10 +79,9 @@ async function editFoodItem(req, res) {
     // Validate the request body against the schema
     const { error, value } = foodItemSchema.validate({ category, restaurant, ...fields });
     if (error) return res.status(400).send(error.details[0].message);
-
     // Process the uploaded file if present
     if (req.file) {
-      const s3Response = await uploadFileToS3(req.file);
+      const s3Response = await uploadFileToS3(req.file.buffer, req.file.originalname, req.file.mimetype);
       value.imageUrl = s3Response.Location;
     }
 
