@@ -75,6 +75,7 @@ async function editFoodItem(req, res) {
     // Parse JSON if category and restaurant are strings
     if (typeof category === 'string') category = JSON.parse(category);
     if (typeof restaurant === 'string') restaurant = JSON.parse(restaurant);
+    if (typeof fields.size === 'string') fields.size = JSON.parse(fields.size);
 
     // Validate the request body against the schema
     const { error, value } = foodItemSchema.validate({ category, restaurant, ...fields });
