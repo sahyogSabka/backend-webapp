@@ -5,7 +5,10 @@ const { updateUser } = require("../controllers/users");
 const OrderSchema = require("../models/order");
 const Mailer = require("../utils/mailer");
 const moment = require("moment");
-const { twilioConf, twilioConfCallMultipleNumbers } = require("../utils/twilioConf");
+const {
+  twilioConf,
+  twilioConfCallMultipleNumbers,
+} = require("../utils/twilioConf");
 
 async function makePayment(req, res) {
   // if the amount to be charged is ₹299.00, then pass 29900 means 29900 paise
@@ -32,7 +35,10 @@ function verifyPayment(req, res) {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       req.body;
 
-    const hmac = crypto.createHmac("sha256", process.env.MYAPP_RAZORPAY_key_secret);
+    const hmac = crypto.createHmac(
+      "sha256",
+      process.env.MYAPP_RAZORPAY_key_secret
+    );
     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
     const generated_signature = hmac.digest("hex");
 
@@ -56,7 +62,6 @@ async function addOrder({ userId, paymentId, amount, items }) {
 
 async function sendMailOfNewlyCreatedOrder(data) {
   try {
-    
     let htmlbody = `<div>
       There is a new Order.
       </div>
@@ -114,9 +119,9 @@ async function sendMailOfNewlyCreatedOrder(data) {
         </table>`;
     let subject = `There is a new order`;
 
-    let restaurantEmails = data.items.map(item => item.restaurant.email)
-    let uniqueRestaurantEmails = [...new Set(restaurantEmails)]
-    
+    let restaurantEmails = data.items.map((item) => item.restaurant.email);
+    let uniqueRestaurantEmails = [...new Set(restaurantEmails)];
+
     await Mailer(htmlbody, subject, uniqueRestaurantEmails);
   } catch (error) {
     throw new Error(error);
@@ -158,7 +163,11 @@ async function createOrder(req, res) {
       //   data: orderData,
       // },
     });
-    twilioConfCallMultipleNumbers()
+
+    let restaurantMobiles = orderData.map((order) => order.restaurant?.mobile);
+    let uniqueRestaurantMobiles = [...new Set(restaurantMobiles)];
+
+    twilioConfCallMultipleNumbers(uniqueRestaurantMobiles);
 
     res.json({
       success: true,
@@ -222,7 +231,7 @@ async function orderStatusUpdate(req, res) {
         $set: { ...status },
       }
     );
-    res.send({ success: true, data, msg: 'Status successfully update.' });
+    res.send({ success: true, data, msg: "Status successfully update." });
   } catch (error) {
     res.status(500).send(error);
   }

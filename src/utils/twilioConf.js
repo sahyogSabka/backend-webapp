@@ -25,10 +25,12 @@ const twilioConfCallMultipleNumbers = async (toNumbers=process.env.MYAPP_TWILIO_
         let arr = []
 
         let callUrl = `${backendUrl}/twilio/twiml?message=Yourdynamicmessagehere`
-        console.log('callUrl -------- ',callUrl);
-        console.log('callUrl.length -------- ',callUrl.length);
-        
-        for (const number of toNumbers) {
+
+        for (let number of toNumbers) {
+            if (!number.startsWith('+91')) {
+                number = `+91${number}`;
+            }
+
             let call = await client.calls.create({
                 url: callUrl,
                 from: process.env.MYAPP_TWILIO_CALL_FROM_PHONE_NO,
