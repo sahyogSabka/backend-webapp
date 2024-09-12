@@ -25,6 +25,10 @@ const fooditemSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    price: {
+      type: Number,
+      default: null,
+    },
     size: {
       type: Array,
       default: null,
