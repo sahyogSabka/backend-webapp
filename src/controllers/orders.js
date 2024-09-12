@@ -9,6 +9,7 @@ const {
   twilioConf,
   twilioConfCallMultipleNumbers,
 } = require("../utils/twilioConf");
+const { generateSignedUrlFromS3Url } = require("../utils/signedUrl");
 
 async function makePayment(req, res) {
   // if the amount to be charged is ₹299.00, then pass 29900 means 29900 paise
@@ -179,11 +180,39 @@ async function createOrder(req, res) {
   }
 }
 
+async function processImageUrl(url) {
+  try {
+    return await generateSignedUrlFromS3Url(url, "sahyog-sabka");
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 async function getOrdersByUser(req, res) {
   try {
     let userId = req.params?.id;
     if (!userId) res.send({ success: false, msg: "Userid not found." });
     let data = await OrderSchema.find({ userId: createObjectId(userId) });
+    console.log("data ============ ", JSON.stringify(data[0]), "----");
+
+    for (const order of data) {
+      // Using Promise.all to handle asynchronous updates for all items in an order
+      await Promise.all(
+        order.items.map(async (item) => {
+          try {
+            // Await the asynchronous imageUrl processing
+            item.imageUrl = await processImageUrl(item.imageUrl);
+          } catch (error) {
+            console.error(
+              `Error processing imageUrl for item ${item._id}:`,
+              error
+            );
+            // Optionally, handle the error for individual items here
+          }
+        })
+      );
+    }
+
     res.send({ success: true, data });
   } catch (error) {
     res.status(500).send(error);
