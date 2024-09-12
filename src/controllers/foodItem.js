@@ -14,8 +14,8 @@ const foodItemSchema = Joi.object({
   name: Joi.string().required(),
   image: Joi.string(),
   description: Joi.string().required(),
-  // price: Joi.number().required(),
-  size: Joi.array().required(),
+  price: Joi.alternatives().try(Joi.number(), Joi.allow(null)).optional(),
+  size: Joi.alternatives().try(Joi.array().items(Joi.string()).optional(), Joi.allow(null)),
   restaurant: Joi.object({
     _id: Joi.string().required(), // Should match your mongoose ID type
     name: Joi.string().required(),
