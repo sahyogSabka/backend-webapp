@@ -9,7 +9,8 @@ const {
   twilioConf,
   twilioConfCallMultipleNumbers,
 } = require("../utils/twilioConf");
-const { generateSignedUrlFromS3Url } = require("../utils/signedUrl");
+const { processImageUrl } = require("../utils/signedUrl");
+
 
 async function makePayment(req, res) {
   // if the amount to be charged is ₹299.00, then pass 29900 means 29900 paise
@@ -177,14 +178,6 @@ async function createOrder(req, res) {
     });
   } catch (error) {
     res.status(500).send(error);
-  }
-}
-
-async function processImageUrl(url) {
-  try {
-    return await generateSignedUrlFromS3Url(url, "sahyog-sabka");
-  } catch (error) {
-    throw new Error(error);
   }
 }
 
