@@ -34,8 +34,8 @@ const generateSignedUrlFromS3Url = async (s3Url, bucketName) => {
   // Generate the signed URL
   try {
     const signedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: 3600,
-    }); // URL expires in 1 hour
+      expiresIn: 7 * 24 * 60 * 60, // 7 days,
+    });
     console.log("Signed URL:", signedUrl);
     return signedUrl;
   } catch (error) {
@@ -43,4 +43,12 @@ const generateSignedUrlFromS3Url = async (s3Url, bucketName) => {
   }
 };
 
-module.exports = { generateSignedUrlFromS3Url };
+async function processImageUrl(url) {
+  try {
+    return await generateSignedUrlFromS3Url(url, "sahyog-sabka");
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+module.exports = { generateSignedUrlFromS3Url, processImageUrl };
