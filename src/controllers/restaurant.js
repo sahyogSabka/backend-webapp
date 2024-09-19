@@ -154,7 +154,7 @@ async function loginRestaurant(req, res) {
     const token = jwt.sign(
       { restaurantId: restaurantId, restaurantName: restaurant.name },
       createSecretKey(),
-      { expiresIn: "1h" }
+      // { expiresIn: "1h" }
     );
 
     // If password matches, return success response
