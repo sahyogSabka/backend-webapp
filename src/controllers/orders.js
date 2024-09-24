@@ -131,11 +131,11 @@ async function sendMailOfNewlyCreatedOrder(data) {
 }
 
 async function createOrder(req, res) {
-  let { orderId, paymentId, userId, amount, name, mobile, orderData } =
-    req.body;
+  const { orderId, paymentId, userId, amount, name, mobile, orderData } = req.body;
+
   try {
     // Save the order to the database
-    let createdOrder = await addOrder({
+    const createdOrder = await addOrder({
       userId,
       paymentId,
       amount,
@@ -147,29 +147,19 @@ async function createOrder(req, res) {
         orderId: createdOrder._id,
         userId: createdOrder.userId,
         userName: name,
-        mobile: mobile,
+        mobile,
         paymentId: createdOrder.paymentId,
         amount: createdOrder.amount,
         items: createdOrder.items,
       });
     }
 
-    let userUpdated = await updateUser(userId, {
-      name,
-      mobile,
-      // orders: {
-      //   orderId: createObjectId(createdOrder._id),
-      //   amount,
-      //   prepareUpto: moment(createdOrder.prepareUpto).toDate(),
-      //   createdAt: new Date(),
-      //   data: orderData,
-      // },
-    });
-
-    let restaurantMobiles = orderData.map((order) => order.restaurant?.mobile);
-    let uniqueRestaurantMobiles = [...new Set(restaurantMobiles)];
-
-    await twilioConfCallMultipleNumbers(uniqueRestaurantMobiles);
+    // Update the user and make Twilio calls in parallel
+    const uniqueRestaurantMobiles = [...new Set(orderData.map(order => order.restaurant?.mobile))];
+    const [userUpdated] = await Promise.all([
+      updateUser(userId, { name, mobile }),
+      twilioConfCallMultipleNumbers(uniqueRestaurantMobiles),
+    ]);
 
     res.json({
       success: true,
@@ -177,7 +167,7 @@ async function createOrder(req, res) {
       data: userUpdated,
     });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send(`Order creation failed: ${error.message}`);
   }
 }
 
