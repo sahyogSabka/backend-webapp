@@ -143,7 +143,7 @@ async function createOrder(req, res) {
     });
 
     if (createdOrder._id) {
-      await sendMailOfNewlyCreatedOrder({
+      sendMailOfNewlyCreatedOrder({
         orderId: createdOrder._id,
         userId: createdOrder.userId,
         userName: name,
@@ -151,7 +151,7 @@ async function createOrder(req, res) {
         paymentId: createdOrder.paymentId,
         amount: createdOrder.amount,
         items: createdOrder.items,
-      });
+      }).catch(error => console.error('Failed to send email:', error));
     }
 
     // Update the user and make Twilio calls in parallel
