@@ -169,7 +169,7 @@ async function createOrder(req, res) {
     let restaurantMobiles = orderData.map((order) => order.restaurant?.mobile);
     let uniqueRestaurantMobiles = [...new Set(restaurantMobiles)];
 
-    twilioConfCallMultipleNumbers(uniqueRestaurantMobiles);
+    await twilioConfCallMultipleNumbers(uniqueRestaurantMobiles);
 
     res.json({
       success: true,
