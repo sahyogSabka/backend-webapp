@@ -237,12 +237,22 @@ async function orderStatusUpdate(req, res) {
   try {
     let { orderId, status } = req.body;
     if (!orderId) res.send({ success: false, msg: "Orderid not found." });
-    let data = await OrderSchema.updateOne(
-      { _id: createObjectId(orderId) },
-      {
-        $set: { ...status },
-      }
-    );
+    let data = {}
+    if (status.isReady) {
+      data = await OrderSchema.updateOne(
+        { _id: createObjectId(orderId) },
+        {
+          $set: { prepareUpto: new Date() },
+        }
+      );
+    } else {
+      data = await OrderSchema.updateOne(
+        { _id: createObjectId(orderId) },
+        {
+          $set: { ...status },
+        }
+      );
+    }
     res.send({ success: true, data, msg: "Status successfully update." });
   } catch (error) {
     res.status(500).send(error);
