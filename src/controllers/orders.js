@@ -54,11 +54,11 @@ function verifyPayment(req, res) {
   }
 }
 
-async function addOrder({ userId, paymentId, amount, items }) {
+async function addOrder({ userId, paymentId, amount, items, paidAmount, codAmount }) {
   try {
-    return await OrderSchema.create({ userId, paymentId, amount, items });
+    return await OrderSchema.create({ userId, paymentId, amount, items, paidAmount, codAmount });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error)
   }
 }
 
@@ -74,8 +74,16 @@ async function sendMailOfNewlyCreatedOrder(data) {
           <td>${data.orderId}</td>
         </tr>
         <tr>
-          <td><strong>Amount</strong></td>
+          <td><strong>Total Amount</strong></td>
           <td>₹${data.amount}</td>
+        </tr>
+        <tr>
+          <td><strong>Paid Amount</strong></td>
+          <td>₹${data.paidAmount}</td>
+        </tr>
+        <tr>
+          <td><strong>COD Amount</strong></td>
+          <td>₹${data.codAmount}</td>
         </tr>
         <tr>
           <td><strong>User id</strong></td>
@@ -131,8 +139,7 @@ async function sendMailOfNewlyCreatedOrder(data) {
 }
 
 async function createOrder(req, res) {
-  const { orderId, paymentId, userId, amount, name, mobile, orderData } = req.body;
-
+  const { orderId, paymentId, userId, amount, name, mobile, orderData, paidAmount, codAmount } = req.body;
   try {
     // Save the order to the database
     const createdOrder = await addOrder({
@@ -140,6 +147,8 @@ async function createOrder(req, res) {
       paymentId,
       amount,
       items: orderData,
+      paidAmount,
+      codAmount
     });
 
     if (createdOrder._id) {
@@ -150,6 +159,8 @@ async function createOrder(req, res) {
         mobile,
         paymentId: createdOrder.paymentId,
         amount: createdOrder.amount,
+        paidAmount: createdOrder.paidAmount,
+        codAmount: createdOrder.codAmount,
         items: createdOrder.items,
       }).catch(error => console.error('Failed to send email:', error));
     }
