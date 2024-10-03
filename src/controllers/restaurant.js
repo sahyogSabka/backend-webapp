@@ -36,7 +36,6 @@ async function getFooditemsByRestaurantId(req, res) {
     let updatedData = [];
     for (let i = 0; i < data.length; i++) {
       let element = data[i];
-      console.log('element -- ',element);
       if (element.imageUrl) {
         let signedUrl = await generateSignedUrlFromS3Url(
           element.imageUrl,

@@ -20,6 +20,14 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    paidAmount: {
+      type: Number,
+      required: true,
+    },
+    codAmount: {
+      type: Number,
+      required: true,
+    },
     prepareUpto: {
       type: Date,
       required: true,
