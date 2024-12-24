@@ -11,13 +11,16 @@ router.post("/create", async (req, res) => {
   return orderController.createOrder(req, res);
 });
 
+router.post("/createOrderByRestaurant", async (req, res) => {
+  return orderController.createOrderByRestaurant(req, res);
+});
+
 router.post("/payment/verify", async (req, res) => {
   return orderController.verifyPayment(req, res);
 });
 
 // Place the more specific route first
 router.get("/restaurant/:id", (req, res) => {
-  console.log('inside restaurant route================================= ');
   return orderController.getOrdersByRestaurant(req, res);
 });
 
