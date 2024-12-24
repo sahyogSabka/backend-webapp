@@ -79,4 +79,4 @@ async function createUser(req, res) {
   }
 }
 
-module.exports = { getAllUsers, createUser, updateUser, getUserById };
+module.exports = { getAllUsers, createUser, updateUser, getUserById, addUser };

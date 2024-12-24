@@ -10,7 +10,7 @@ const orderSchema = new mongoose.Schema(
     },
     paymentId: {
       type: String,
-      required: true,
+      // required: true,
     },
     orderType: {
       type: String,
@@ -38,6 +38,10 @@ const orderSchema = new mongoose.Schema(
       default: () => moment().add(parseInt(process.env.MYAPP_ORDER_TIME_IN_MINUTES, 10), 'minutes').toDate(),
     },
     isDelivered: {
+      type: Boolean,
+      default: false
+    },
+    createdByRestaurant: {
       type: Boolean,
       default: false
     },

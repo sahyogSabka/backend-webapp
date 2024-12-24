@@ -7,6 +7,9 @@ if (!process.env.MYAPP_MONGO_URL) {
 
 const connectionStr = process.env.MYAPP_MONGO_URL;
 
+console.log(`Mongo URL =========== ${connectionStr}`);
+
+
 mongoose
   .connect(connectionStr)
   .then(() => console.log("Mongodb Connected"))

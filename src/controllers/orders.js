@@ -5,12 +5,13 @@ const { updateUser } = require("../controllers/users");
 const OrderSchema = require("../models/order");
 const Mailer = require("../utils/mailer");
 const moment = require("moment");
+const UserSchema = require("../models/user");
 const {
   twilioConf,
   twilioConfCallMultipleNumbers,
 } = require("../utils/twilioConf");
 const { processImageUrl } = require("../utils/signedUrl");
-
+const UserController = require("../controllers/users");
 
 async function makePayment(req, res) {
   // if the amount to be charged is ₹299.00, then pass 29900 means 29900 paise
@@ -54,11 +55,29 @@ function verifyPayment(req, res) {
   }
 }
 
-async function addOrder({ userId, paymentId, amount, items, paidAmount, codAmount, orderType }) {
+async function addOrder({
+  userId,
+  paymentId,
+  amount,
+  items,
+  paidAmount,
+  codAmount,
+  orderType,
+  createdByRestaurant = false,
+}) {
   try {
-    return await OrderSchema.create({ userId, paymentId, amount, items, paidAmount, codAmount, orderType });
+    return await OrderSchema.create({
+      userId,
+      paymentId,
+      amount,
+      items,
+      paidAmount,
+      codAmount,
+      orderType,
+      createdByRestaurant,
+    });
   } catch (error) {
-    throw new Error(error)
+    throw new Error(error);
   }
 }
 
@@ -143,7 +162,18 @@ async function sendMailOfNewlyCreatedOrder(data) {
 }
 
 async function createOrder(req, res) {
-  const { orderId, paymentId, userId, amount, name, mobile, orderData, paidAmount, codAmount, orderType } = req.body;
+  const {
+    orderId,
+    paymentId,
+    userId,
+    amount,
+    name,
+    mobile,
+    orderData,
+    paidAmount,
+    codAmount,
+    orderType,
+  } = req.body;
   try {
     // Save the order to the database
     const createdOrder = await addOrder({
@@ -153,7 +183,7 @@ async function createOrder(req, res) {
       items: orderData,
       paidAmount,
       codAmount,
-      orderType
+      orderType,
     });
 
     if (createdOrder._id) {
@@ -167,12 +197,14 @@ async function createOrder(req, res) {
         paidAmount: createdOrder.paidAmount,
         codAmount: createdOrder.codAmount,
         items: createdOrder.items,
-        orderType
-      }).catch(error => console.error('Failed to send email:', error));
+        orderType,
+      }).catch((error) => console.error("Failed to send email:", error));
     }
 
     // Update the user and make Twilio calls in parallel
-    const uniqueRestaurantMobiles = [...new Set(orderData.map(order => order.restaurant?.mobile))];
+    const uniqueRestaurantMobiles = [
+      ...new Set(orderData.map((order) => order.restaurant?.mobile)),
+    ];
     const [userUpdated] = await Promise.all([
       updateUser(userId, { name, mobile }),
       twilioConfCallMultipleNumbers(uniqueRestaurantMobiles),
@@ -182,6 +214,49 @@ async function createOrder(req, res) {
       success: true,
       msg: "Order created successfully.",
       data: userUpdated,
+    });
+  } catch (error) {
+    res.status(500).send(`Order creation failed: ${error.message}`);
+  }
+}
+
+async function createOrderByRestaurant(req, res) {
+  const { amount, name, mobile, orderData, orderType } = req.body;
+  // debugger
+
+  try {
+    // find user
+    let user = await UserSchema.findOne({ mobile });
+    let userObj = {
+      name,
+      mobile,
+      type: { id: "666d62b8f447d3be1433fb7d", name: "customer" },
+      createdByRestaurant: true,
+    };
+
+    // Create user if not found else update username and get userid
+    if (!user) {
+      user = await UserController.addUser({ ...userObj });
+    } else {
+      await UserController.updateUser(user._id, { ...userObj });
+    }
+
+    // // Save the order to the database
+    const createdOrder = await addOrder({
+      userId: user._id,
+      paymentId: null,
+      amount,
+      items: orderData,
+      paidAmount: amount,
+      codAmount: 0,
+      orderType,
+      createdByRestaurant: true,
+    });
+
+    res.json({
+      success: true,
+      msg: "Order created successfully.",
+      data: createdOrder,
     });
   } catch (error) {
     res.status(500).send(`Order creation failed: ${error.message}`);
@@ -254,7 +329,7 @@ async function orderStatusUpdate(req, res) {
   try {
     let { orderId, status } = req.body;
     if (!orderId) res.send({ success: false, msg: "Orderid not found." });
-    let data = {}
+    let data = {};
     if (status.isReady) {
       data = await OrderSchema.updateOne(
         { _id: createObjectId(orderId) },
@@ -280,6 +355,7 @@ module.exports = {
   makePayment,
   verifyPayment,
   createOrder,
+  createOrderByRestaurant,
   getOrdersByUser,
   getOrdersByRestaurant,
   orderStatusUpdate,
