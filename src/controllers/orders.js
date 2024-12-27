@@ -64,6 +64,7 @@ async function addOrder({
   codAmount,
   orderType,
   createdByRestaurant = false,
+  paymentMode
 }) {
   try {
     return await OrderSchema.create({
@@ -75,6 +76,7 @@ async function addOrder({
       codAmount,
       orderType,
       createdByRestaurant,
+      paymentMode
     });
   } catch (error) {
     throw new Error(error);
@@ -221,7 +223,7 @@ async function createOrder(req, res) {
 }
 
 async function createOrderByRestaurant(req, res) {
-  const { amount, name, mobile, orderData, orderType } = req.body;
+  const { amount, name, mobile, orderData, orderType, paymentMode } = req.body;
   // debugger
 
   try {
@@ -251,6 +253,7 @@ async function createOrderByRestaurant(req, res) {
       codAmount: 0,
       orderType,
       createdByRestaurant: true,
+      paymentMode
     });
 
     res.json({
