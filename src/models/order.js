@@ -3,7 +3,7 @@ const moment = require("moment");
 
 // Define the User schema
 const orderSchema = new mongoose.Schema(
-  {
+  { 
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -12,9 +12,13 @@ const orderSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    orderType: {
+    orderType: { 
       type: String,
       required: true,
+    },
+    paymentMode: {
+      type: String,
+      default: null
     },
     createdAt: {
       type: Date,
