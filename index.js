@@ -38,13 +38,15 @@ app.use((req, res, next) => {
   req.io = io; // Attach io instance to req
   next();
 });
-app.use(express.json());
+
 // Allow all origins for HTTP requests
 app.use(cors({
   origin: "*", // Allow requests from all origins
   methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
   credentials: false, // Set to true if you want to allow cookies/auth headers
 }));
+
+app.use(express.json());
 
 // Load mongo config
 require("./config");
