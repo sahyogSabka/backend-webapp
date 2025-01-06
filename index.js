@@ -12,8 +12,10 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    // origin: "*",
-    origin: "https://www.drivefood.in",
+    // origin: "*", // Allow only your frontend domain
+    origin: "https://www.drivefood.in", // Allow only your frontend domain
+    methods: ["GET", "PUT", "POST"], // Specify allowed methods
+    credentials: true, // Allow cookies/auth headers if needed
   },
 });
 
