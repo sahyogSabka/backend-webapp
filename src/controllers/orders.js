@@ -368,7 +368,9 @@ async function orderStatusUpdate(req, res) {
         }
       );
     }
-    res.send({ success: true, data, msg: "Status successfully update." });
+
+    let updatedData = await OrderSchema.findOne({ _id: createObjectId(orderId)})
+    return { success: true, data: updatedData, msg: "Status successfully update." }
   } catch (error) {
     res.status(500).send(error);
   }

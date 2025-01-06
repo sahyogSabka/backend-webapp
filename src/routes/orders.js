@@ -1,6 +1,5 @@
 const express = require("express");
 const orderController = require("../controllers/orders");
-// const { io } = require("../../index"); // Import io instance
 
 const router = express.Router();
 
@@ -40,7 +39,7 @@ router.patch("/update", async (req, res) => {
   let result = await orderController.orderStatusUpdate(req, res);
   // Emit an event for order updates
   req.io.emit("orderUpdated", result);
-  return result
+  res.status(200).json(result);
 });
 
 module.exports = router;
