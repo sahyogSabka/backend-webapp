@@ -212,11 +212,19 @@ async function createOrder(req, res) {
       twilioConfCallMultipleNumbers(uniqueRestaurantMobiles),
     ]);
 
-    res.json({
+    // res.json({
+    //   success: true,
+    //   msg: "Order created successfully.",
+    //   data: userUpdated,
+    // });
+
+    // Convert createdOrder to a plain object
+    const userUpdatedObj = userUpdated.toObject();
+    return {
       success: true,
       msg: "Order created successfully.",
-      data: userUpdated,
-    });
+      data: {...userUpdatedObj, user: {name, mobile}},
+    }
   } catch (error) {
     res.status(500).send(`Order creation failed: ${error.message}`);
   }
@@ -256,11 +264,21 @@ async function createOrderByRestaurant(req, res) {
       paymentMode
     });
 
-    res.json({
+    // res.json({
+    //   success: true,
+    //   msg: "Order created successfully.",
+    //   data: createdOrder,
+    // });
+
+    // Convert createdOrder to a plain object
+    const createdOrderObj = createdOrder.toObject();
+
+    // Return the created order
+    return {
       success: true,
       msg: "Order created successfully.",
-      data: createdOrder,
-    });
+      data: {...createdOrderObj, user: {name, mobile}},
+    };
   } catch (error) {
     res.status(500).send(`Order creation failed: ${error.message}`);
   }

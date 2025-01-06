@@ -1,5 +1,6 @@
 const express = require("express");
 const orderController = require("../controllers/orders");
+// const { io } = require("../../index"); // Import io instance
 
 const router = express.Router();
 
@@ -8,11 +9,17 @@ router.post("/payment", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  return orderController.createOrder(req, res);
+  // Emit an event for new orders
+  let result = await orderController.createOrder(req, res);
+  req.io.emit("orderCreated", result);
+  res.status(200).json(result);
 });
 
 router.post("/createOrderByRestaurant", async (req, res) => {
-  return orderController.createOrderByRestaurant(req, res);
+  // Emit an event for new orders
+  let result = await orderController.createOrderByRestaurant(req, res);
+  req.io.emit("orderCreatedByRestaurant", result);
+  res.status(200).json(result);
 });
 
 router.post("/payment/verify", async (req, res) => {
@@ -30,7 +37,10 @@ router.get("/:id", (req, res) => {
 });
 
 router.patch("/update", async (req, res) => {
-  return await orderController.orderStatusUpdate(req, res);
+  let result = await orderController.orderStatusUpdate(req, res);
+  // Emit an event for order updates
+  req.io.emit("orderUpdated", result);
+  return result
 });
 
 module.exports = router;
