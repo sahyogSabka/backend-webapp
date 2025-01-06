@@ -212,6 +212,8 @@ async function createOrder(req, res) {
       twilioConfCallMultipleNumbers(uniqueRestaurantMobiles),
     ]);
 
+    let user = await UserSchema.findOne({ _id: createObjectId(userId) });
+
     // res.json({
     //   success: true,
     //   msg: "Order created successfully.",
@@ -223,7 +225,7 @@ async function createOrder(req, res) {
     return {
       success: true,
       msg: "Order created successfully.",
-      data: {...userUpdatedObj, user: {name, mobile}},
+      data: { ...userUpdatedObj, user },
     }
   } catch (error) {
     res.status(500).send(`Order creation failed: ${error.message}`);
@@ -277,7 +279,7 @@ async function createOrderByRestaurant(req, res) {
     return {
       success: true,
       msg: "Order created successfully.",
-      data: {...createdOrderObj, user: {name, mobile}},
+      data: { ...createdOrderObj, user },
     };
   } catch (error) {
     res.status(500).send(`Order creation failed: ${error.message}`);
