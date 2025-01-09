@@ -21,7 +21,10 @@ app.use(express.json());
 // Attach Socket.IO with proper CORS settings
 const io = new Server(server, {
   cors: {
-    origin: "*", // Allow requests from all origins
+    origin: (origin, callback) => {
+      // Allow all origins dynamically
+      callback(null, true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
     credentials: true, // Allow cookies/auth headers if needed
   },
