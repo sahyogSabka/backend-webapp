@@ -9,7 +9,7 @@ const port = 3000;
 // Create an HTTP server and attach Socket.IO
 const server = http.createServer(app);
 
-const origin = 'https://www.drivefood.in'
+const origin = 'https://www.drivefood.in/'
 
 // Allow all origins for HTTP requests
 app.use(cors({
