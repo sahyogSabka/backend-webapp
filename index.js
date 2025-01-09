@@ -1,4 +1,3 @@
-// At the top of index.js
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
@@ -10,11 +9,21 @@ const port = 3000;
 // Create an HTTP server and attach Socket.IO
 const server = http.createServer(app);
 
+// Allow all origins for HTTP requests
+app.use(cors({
+  origin: "*", // Allow requests from all origins
+  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
+  credentials: true, // Set to true if cookies/auth headers are required
+}));
+
+app.use(express.json());
+
+// Attach Socket.IO with proper CORS settings
 const io = new Server(server, {
   cors: {
     origin: "*", // Allow requests from all origins
-    methods: ["GET", "PUT", "POST"], // Specify allowed methods
-    credentials: false, // Set to true if you want to allow cookies/auth headers
+    methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
+    credentials: true, // Allow cookies/auth headers if needed
   },
 });
 
@@ -38,15 +47,6 @@ app.use((req, res, next) => {
   req.io = io; // Attach io instance to req
   next();
 });
-
-// Allow all origins for HTTP requests
-app.use(cors({
-  origin: "*", // Allow requests from all origins
-  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
-  credentials: false, // Set to true if you want to allow cookies/auth headers
-}));
-
-app.use(express.json());
 
 // Load mongo config
 require("./config");
