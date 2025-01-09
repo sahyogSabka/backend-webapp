@@ -9,25 +9,40 @@ const port = 3000;
 // Create an HTTP server and attach Socket.IO
 const server = http.createServer(app);
 
+const origin = 'https://www.drivefood.in'
+
 // Allow all origins for HTTP requests
 app.use(cors({
-  origin: "*", // Allow requests from all origins
-  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
+  origin: origin, // Allow requests only from this origin
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Specify allowed methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
   credentials: true, // Set to true if cookies/auth headers are required
 }));
+
+app.options("*", (req, res) => {
+  res.set({
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  });
+  res.sendStatus(200);
+});
 
 app.use(express.json());
 
 // Attach Socket.IO with proper CORS settings
 const io = new Server(server, {
   cors: {
-    origin: (origin, callback) => {
-      // Allow all origins dynamically
-      callback(null, true);
-    },
+    origin: origin, // Allow requests only from this origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
     credentials: true, // Allow cookies/auth headers if needed
   },
+});
+
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  console.log("Request headers:", req.headers);
+  next();
 });
 
 // Socket.IO setup
